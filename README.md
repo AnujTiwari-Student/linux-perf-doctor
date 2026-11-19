@@ -32,15 +32,45 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the complete four-stage p
 4. `scripts/generate_report.py` -> Cross-subsystem correlation & JSON/Markdown report synthesis
 
 ## 6. Installation
-```bash
-# Using npx skills CLI (https://github.com/vercel-labs/skills)
-npx skills add ./linux-perf-doctor
 
-# Manual installation for Claude Code
+### Install directly from GitHub (Recommended)
+
+Install the skill from its public repository:
+
+```bash
+npx skills add AnujTiwari-Student/linux-perf-doctor --skill linux-perf-doctor
+```
+
+To install the published v1.0.0 release specifically:
+
+```bash
+npx skills add AnujTiwari-Student/linux-perf-doctor@v1.0.0 --skill linux-perf-doctor
+```
+
+### Install from a Local Clone
+
+Clone the repository and install from its root directory:
+
+```bash
+git clone https://github.com/AnujTiwari-Student/linux-perf-doctor.git
+cd linux-perf-doctor
+npx skills add . --skill linux-perf-doctor
+```
+
+### Manual Installation
+
+Run these commands from the parent directory containing `linux-perf-doctor/`.
+
+For Claude Code:
+
+```bash
 mkdir -p ~/.claude/skills
 cp -r ./linux-perf-doctor ~/.claude/skills/linux-perf-doctor
+```
 
-# Manual installation for OpenAI Codex
+For OpenAI Codex:
+
+```bash
 mkdir -p ~/.agents/skills
 cp -r ./linux-perf-doctor ~/.agents/skills/linux-perf-doctor
 ```
