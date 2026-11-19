@@ -33,7 +33,7 @@ jobs:
           from pathlib import Path
           import os
           text = Path("SKILL.md").read_text(encoding="utf-8")
-          assert text.startswith("---\\n"), "Missing YAML frontmatter start"
+          assert text.startswith("---\n"), "Missing YAML frontmatter start"
           parts = text.split("---", 2)
           assert len(parts) >= 3, "Missing YAML frontmatter end"
           assert "name: linux-perf-doctor" in parts[1], "Invalid skill name"
