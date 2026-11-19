@@ -12,10 +12,24 @@
 
 ## Quick start
 
-Install the local skill using the Vercel Skills CLI from the parent directory containing the cloned linux-perf-doctor folder:
+Install directly from the public GitHub repository using the Vercel Skills CLI:
 
 ```bash
-npx skills add ./linux-perf-doctor
+npx skills add AnujTiwari-Student/linux-perf-doctor --skill linux-perf-doctor
+```
+
+To install the published v1.0.0 release specifically:
+
+```bash
+npx skills add AnujTiwari-Student/linux-perf-doctor@v1.0.0 --skill linux-perf-doctor
+```
+
+Alternatively, clone the repository and install from its root directory:
+
+```bash
+git clone https://github.com/AnujTiwari-Student/linux-perf-doctor.git
+cd linux-perf-doctor
+npx skills add . --skill linux-perf-doctor
 ```
 
 Run the example workflow from the repository root:
