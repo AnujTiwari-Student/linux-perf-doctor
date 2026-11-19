@@ -1,0 +1,75 @@
+name: Feature Request
+description: Suggest a new diagnostic capability or improvement.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting an improvement to linux-perf-doctor.
+
+        Please describe the engineering problem and the benefit of solving it.
+        Do not include credentials, private keys, tokens, or sensitive host data.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What problem are you trying to solve?
+      placeholder: Describe the operational or diagnostic problem.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed solution
+      description: Explain the feature or behavior you would like.
+    validations:
+      required: true
+
+  - type: textarea
+    id: users
+    attributes:
+      label: Intended users and environment
+      description: Who would benefit, and where would this feature be used?
+      placeholder: |
+        Intended users:
+        Linux distributions:
+        Kernel or container environments:
+        Agent/runtime:
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: Expected behavior
+      description: Describe how the feature should work.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Describe existing workarounds or alternative approaches.
+    validations:
+      required: false
+
+  - type: textarea
+    id: security
+    attributes:
+      label: Security and operational considerations
+      description: Would this require additional permissions, active profiling, or access to sensitive data?
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Add sanitized examples, references, or other relevant information.
+    validations:
+      required: false
