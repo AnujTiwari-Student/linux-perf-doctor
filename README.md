@@ -1,6 +1,11 @@
 # linux-perf-doctor
 
-**Autonomous eBPF, Syscall, Process, I/O, and Container Bottleneck Profiler Agent Skill**
+<p align="center">
+  <img src="assets/branding/logo.svg" alt="linux-perf-doctor logo" width="180" />
+</p>
+
+
+**Read-only Linux Performance Diagnostics for AI Agents and SRE Workflows**
 
 ## 1. Project Name and Positioning
 `linux-perf-doctor` is a production-grade [Agent Skill](https://agentskills.io/specification) that equips AI coding and SRE agents with deterministic Linux operating-system telemetry collection, cgroup v1/v2 container pressure analysis, and evidence-backed bottleneck diagnosis.
