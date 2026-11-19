@@ -24,6 +24,13 @@ When applications suffer latency spikes, CPU throttling, or OOM terminations in 
 - **Network & Block I/O Diagnostics**: Identifies `CLOSE_WAIT` socket leaks, `TIME_WAIT` churn, `SYN_RECV` backlog saturation, non-zero `Recv-Q`/`Send-Q` buffers, and high block-device `await` latencies.
 - **Strictly Opt-In Active Profiling**: Requires `--enable-active-profiling` before invoking `strace` or `perf` with bounded duration timeouts.
 
+### Project Demo
+
+Watch Linux Perf Doctor in action:
+
+[**Watch the demonstration on LinkedIn →**](https://lnkd.in/p/dRXQRwFk)
+
+
 ## 5. Architecture Overview
 See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the complete four-stage pipeline:
 1. `scripts/check_perf_capabilities.sh` -> Capability & permission discovery
