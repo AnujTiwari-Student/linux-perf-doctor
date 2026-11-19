@@ -1,0 +1,1200 @@
+{
+  "status": "ok",
+  "timestamp": "2026-11-17T16:16:25.324145+00:00",
+  "platform": {
+    "system": "Linux",
+    "release": "6.12.105+",
+    "machine": "x86_64",
+    "cpu_count": 2
+  },
+  "tool_versions": {
+    "python": "3.11.2"
+  },
+  "findings": [
+    {
+      "id": "SYS-OK-001",
+      "category": "system",
+      "severity": "info",
+      "classification": "measured",
+      "title": "Host CPU, memory, and I/O baseline within normal operating thresholds",
+      "evidence": {
+        "busy_pct": 0.0,
+        "mem_used_pct": 9.52,
+        "iowait_pct": 0.0,
+        "load_1m": 0.0
+      },
+      "likely_causes": [
+        "No host-wide saturation observed during sampling window"
+      ],
+      "confidence": "high",
+      "recommendation": "If latency persists, inspect per-process or container-specific cgroup constraints."
+    },
+    {
+      "id": "CGRP-OK-001",
+      "category": "cgroup",
+      "severity": "info",
+      "classification": "measured",
+      "title": "Cgroup (v2) limits and throttling counters healthy",
+      "evidence": {
+        "cpu": {
+          "cpu_max_raw": "max 100000",
+          "quota_us": null,
+          "period_us": 100000,
+          "effective_cpus": "unlimited",
+          "nr_periods": 0,
+          "nr_throttled": 0,
+          "throttled_usec": 0,
+          "throttle_pct": 0.0
+        },
+        "memory": {
+          "current_bytes": 390336512,
+          "max_bytes": "max",
+          "utilization_pct": null,
+          "events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          }
+        }
+      },
+      "likely_causes": [
+        "No active container CPU throttling or memory OOM pressure"
+      ],
+      "confidence": "high",
+      "recommendation": "No immediate cgroup limit adjustments required."
+    },
+    {
+      "id": "IO-OK-001",
+      "category": "io",
+      "severity": "info",
+      "classification": "measured",
+      "title": "Block device latency and queue depths within normal thresholds",
+      "evidence": {
+        "devices_inspected": 19,
+        "measurement_mode": "cumulative_since_boot"
+      },
+      "likely_causes": [
+        "Storage subsystem operating normally"
+      ],
+      "confidence": "high",
+      "recommendation": "No block I/O bottlenecks detected."
+    },
+    {
+      "id": "NET-OK-001",
+      "category": "network",
+      "severity": "info",
+      "classification": "measured",
+      "title": "Network socket states, queues, SNMP/Netstat MIBs, and interface counters healthy",
+      "evidence": {
+        "state_counts": {
+          "ESTABLISHED": 0,
+          "SYN_SENT": 0,
+          "SYN_RECV": 0,
+          "FIN_WAIT1": 0,
+          "FIN_WAIT2": 0,
+          "TIME_WAIT": 0,
+          "CLOSE": 0,
+          "CLOSE_WAIT": 0,
+          "LAST_ACK": 0,
+          "LISTEN": 5,
+          "CLOSING": 0
+        },
+        "interface_count": 1
+      },
+      "likely_causes": [
+        "No socket backlog, listen overflow, or packet drop anomalies observed"
+      ],
+      "confidence": "high",
+      "recommendation": "No immediate network stack remediation needed."
+    },
+    {
+      "id": "PROC-SCAN-001",
+      "category": "process",
+      "severity": "info",
+      "classification": "measured",
+      "title": "Scanned 12 active processes in /proc",
+      "evidence": {
+        "total_processes": 12,
+        "top_rss_pid": 15
+      },
+      "likely_causes": [
+        "Routine process table scan"
+      ],
+      "confidence": "high",
+      "recommendation": "Pass --pid <PID> to inspect a specific high-resource process in detail."
+    }
+  ],
+  "bottlenecks": [],
+  "metrics": {
+    "system": {
+      "metric_semantics": {
+        "cpu": "interval_derived",
+        "memory_and_scheduling": "instantaneous",
+        "vmstat_counters": "cumulative_since_boot",
+        "psi": "rolling_window_average_pct"
+      },
+      "cpu": {
+        "user_pct": 0.0,
+        "system_pct": 0.0,
+        "idle_pct": 100.0,
+        "iowait_pct": 0.0,
+        "steal_pct": 0.0,
+        "ctxt_per_sec": 379.54,
+        "semantics": "interval_derived"
+      },
+      "scheduling": {
+        "procs_running": 1,
+        "procs_blocked": 0,
+        "total_forks": 5053,
+        "loadavg": {
+          "load_1m": 0.0,
+          "load_5m": 0.0,
+          "load_15m": 0.0,
+          "scheduling_entities": "1/199"
+        }
+      },
+      "memory": {
+        "mem_total_bytes": 8333783040,
+        "mem_available_bytes": 7540551680,
+        "mem_used_bytes": 793231360,
+        "mem_used_pct": 9.52,
+        "swap_total_bytes": 0,
+        "swap_used_bytes": 0,
+        "swap_used_pct": 0.0,
+        "buffers_bytes": 9465856,
+        "cached_bytes": 512122880
+      },
+      "vmstat": {
+        "pswpin": 0,
+        "pswpout": 0,
+        "pgfault": 2073532,
+        "pgmajfault": 1721,
+        "oom_kill": 0
+      },
+      "psi": {
+        "cpu": {
+          "some": {
+            "avg10": 0.18,
+            "avg60": 0.03,
+            "avg300": 0.0,
+            "total": 4610446.0
+          },
+          "full": {
+            "avg10": 0.0,
+            "avg60": 0.0,
+            "avg300": 0.0,
+            "total": 0.0
+          }
+        },
+        "memory": {
+          "some": {
+            "avg10": 0.0,
+            "avg60": 0.0,
+            "avg300": 0.0,
+            "total": 0.0
+          },
+          "full": {
+            "avg10": 0.0,
+            "avg60": 0.0,
+            "avg300": 0.0,
+            "total": 0.0
+          }
+        },
+        "io": {
+          "some": {
+            "avg10": 0.0,
+            "avg60": 0.0,
+            "avg300": 0.0,
+            "total": 2357615.0
+          },
+          "full": {
+            "avg10": 0.0,
+            "avg60": 0.0,
+            "avg300": 0.0,
+            "total": 1964539.0
+          }
+        }
+      }
+    },
+    "cgroup": {
+      "metric_semantics": {
+        "memory_current_and_pids": "instantaneous",
+        "cpu_stat_and_memory_events": "cumulative_since_cgroup_creation",
+        "pressure_avg10_60_300": "rolling_window_average_pct"
+      },
+      "cgroup_version": "v2",
+      "cpu": {
+        "cpu_max_raw": "max 100000",
+        "quota_us": null,
+        "period_us": 100000,
+        "effective_cpus": "unlimited",
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "throttled_usec": 0,
+        "throttle_pct": 0.0
+      },
+      "memory": {
+        "current_bytes": 390336512,
+        "max_bytes": "max",
+        "utilization_pct": null,
+        "events": {
+          "low": 0,
+          "high": 0,
+          "max": 0,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0
+        }
+      },
+      "pids": {
+        "current": 22,
+        "max": 9507
+      },
+      "pressure": {
+        "cpu": {
+          "some": {
+            "avg10": 0.0,
+            "avg60": 0.0,
+            "avg300": 0.0,
+            "total": 790517.0
+          },
+          "full": {
+            "avg10": 0.0,
+            "avg60": 0.0,
+            "avg300": 0.0,
+            "total": 498226.0
+          }
+        },
+        "memory": {
+          "some": {
+            "avg10": 0.0,
+            "avg60": 0.0,
+            "avg300": 0.0,
+            "total": 0.0
+          },
+          "full": {
+            "avg10": 0.0,
+            "avg60": 0.0,
+            "avg300": 0.0,
+            "total": 0.0
+          }
+        },
+        "io": {
+          "some": {
+            "avg10": 0.0,
+            "avg60": 0.0,
+            "avg300": 0.0,
+            "total": 390568.0
+          },
+          "full": {
+            "avg10": 0.0,
+            "avg60": 0.0,
+            "avg300": 0.0,
+            "total": 308054.0
+          }
+        }
+      }
+    },
+    "io": {
+      "metric_semantics": {
+        "io_in_progress": "instantaneous",
+        "cumulative": "cumulative_since_boot",
+        "interval_delta": "not_sampled"
+      },
+      "block_devices": [
+        {
+          "device": "pmem0",
+          "instantaneous_io_in_progress": 0,
+          "cumulative": {
+            "reads_completed": 0,
+            "bytes_read": 0,
+            "read_time_ms": 0,
+            "avg_read_await_ms": 0.0,
+            "writes_completed": 0,
+            "bytes_written": 0,
+            "write_time_ms": 0,
+            "avg_write_await_ms": 0.0,
+            "io_time_ms": 0,
+            "weighted_io_time_ms": 0
+          },
+          "reads_completed": 0,
+          "bytes_read": 0,
+          "avg_read_await_ms": 0.0,
+          "writes_completed": 0,
+          "bytes_written": 0,
+          "avg_write_await_ms": 0.0,
+          "io_in_progress": 0
+        },
+        {
+          "device": "pmem0p1",
+          "instantaneous_io_in_progress": 0,
+          "cumulative": {
+            "reads_completed": 0,
+            "bytes_read": 0,
+            "read_time_ms": 0,
+            "avg_read_await_ms": 0.0,
+            "writes_completed": 0,
+            "bytes_written": 0,
+            "write_time_ms": 0,
+            "avg_write_await_ms": 0.0,
+            "io_time_ms": 0,
+            "weighted_io_time_ms": 0
+          },
+          "reads_completed": 0,
+          "bytes_read": 0,
+          "avg_read_await_ms": 0.0,
+          "writes_completed": 0,
+          "bytes_written": 0,
+          "avg_write_await_ms": 0.0,
+          "io_in_progress": 0
+        },
+        {
+          "device": "pmem0p2",
+          "instantaneous_io_in_progress": 0,
+          "cumulative": {
+            "reads_completed": 0,
+            "bytes_read": 0,
+            "read_time_ms": 0,
+            "avg_read_await_ms": 0.0,
+            "writes_completed": 0,
+            "bytes_written": 0,
+            "write_time_ms": 0,
+            "avg_write_await_ms": 0.0,
+            "io_time_ms": 0,
+            "weighted_io_time_ms": 0
+          },
+          "reads_completed": 0,
+          "bytes_read": 0,
+          "avg_read_await_ms": 0.0,
+          "writes_completed": 0,
+          "bytes_written": 0,
+          "avg_write_await_ms": 0.0,
+          "io_in_progress": 0
+        },
+        {
+          "device": "pmem0p3",
+          "instantaneous_io_in_progress": 0,
+          "cumulative": {
+            "reads_completed": 0,
+            "bytes_read": 0,
+            "read_time_ms": 0,
+            "avg_read_await_ms": 0.0,
+            "writes_completed": 0,
+            "bytes_written": 0,
+            "write_time_ms": 0,
+            "avg_write_await_ms": 0.0,
+            "io_time_ms": 0,
+            "weighted_io_time_ms": 0
+          },
+          "reads_completed": 0,
+          "bytes_read": 0,
+          "avg_read_await_ms": 0.0,
+          "writes_completed": 0,
+          "bytes_written": 0,
+          "avg_write_await_ms": 0.0,
+          "io_in_progress": 0
+        },
+        {
+          "device": "pmem0p4",
+          "instantaneous_io_in_progress": 0,
+          "cumulative": {
+            "reads_completed": 0,
+            "bytes_read": 0,
+            "read_time_ms": 0,
+            "avg_read_await_ms": 0.0,
+            "writes_completed": 0,
+            "bytes_written": 0,
+            "write_time_ms": 0,
+            "avg_write_await_ms": 0.0,
+            "io_time_ms": 0,
+            "weighted_io_time_ms": 0
+          },
+          "reads_completed": 0,
+          "bytes_read": 0,
+          "avg_read_await_ms": 0.0,
+          "writes_completed": 0,
+          "bytes_written": 0,
+          "avg_write_await_ms": 0.0,
+          "io_in_progress": 0
+        },
+        {
+          "device": "pmem0p5",
+          "instantaneous_io_in_progress": 0,
+          "cumulative": {
+            "reads_completed": 0,
+            "bytes_read": 0,
+            "read_time_ms": 0,
+            "avg_read_await_ms": 0.0,
+            "writes_completed": 0,
+            "bytes_written": 0,
+            "write_time_ms": 0,
+            "avg_write_await_ms": 0.0,
+            "io_time_ms": 0,
+            "weighted_io_time_ms": 0
+          },
+          "reads_completed": 0,
+          "bytes_read": 0,
+          "avg_read_await_ms": 0.0,
+          "writes_completed": 0,
+          "bytes_written": 0,
+          "avg_write_await_ms": 0.0,
+          "io_in_progress": 0
+        },
+        {
+          "device": "pmem0p6",
+          "instantaneous_io_in_progress": 0,
+          "cumulative": {
+            "reads_completed": 0,
+            "bytes_read": 0,
+            "read_time_ms": 0,
+            "avg_read_await_ms": 0.0,
+            "writes_completed": 0,
+            "bytes_written": 0,
+            "write_time_ms": 0,
+            "avg_write_await_ms": 0.0,
+            "io_time_ms": 0,
+            "weighted_io_time_ms": 0
+          },
+          "reads_completed": 0,
+          "bytes_read": 0,
+          "avg_read_await_ms": 0.0,
+          "writes_completed": 0,
+          "bytes_written": 0,
+          "avg_write_await_ms": 0.0,
+          "io_in_progress": 0
+        },
+        {
+          "device": "pmem0p7",
+          "instantaneous_io_in_progress": 0,
+          "cumulative": {
+            "reads_completed": 0,
+            "bytes_read": 0,
+            "read_time_ms": 0,
+            "avg_read_await_ms": 0.0,
+            "writes_completed": 0,
+            "bytes_written": 0,
+            "write_time_ms": 0,
+            "avg_write_await_ms": 0.0,
+            "io_time_ms": 0,
+            "weighted_io_time_ms": 0
+          },
+          "reads_completed": 0,
+          "bytes_read": 0,
+          "avg_read_await_ms": 0.0,
+          "writes_completed": 0,
+          "bytes_written": 0,
+          "avg_write_await_ms": 0.0,
+          "io_in_progress": 0
+        },
+        {
+          "device": "pmem0p8",
+          "instantaneous_io_in_progress": 0,
+          "cumulative": {
+            "reads_completed": 0,
+            "bytes_read": 0,
+            "read_time_ms": 0,
+            "avg_read_await_ms": 0.0,
+            "writes_completed": 0,
+            "bytes_written": 0,
+            "write_time_ms": 0,
+            "avg_write_await_ms": 0.0,
+            "io_time_ms": 0,
+            "weighted_io_time_ms": 0
+          },
+          "reads_completed": 0,
+          "bytes_read": 0,
+          "avg_read_await_ms": 0.0,
+          "writes_completed": 0,
+          "bytes_written": 0,
+          "avg_write_await_ms": 0.0,
+          "io_in_progress": 0
+        },
+        {
+          "device": "pmem0p9",
+          "instantaneous_io_in_progress": 0,
+          "cumulative": {
+            "reads_completed": 0,
+            "bytes_read": 0,
+            "read_time_ms": 0,
+            "avg_read_await_ms": 0.0,
+            "writes_completed": 0,
+            "bytes_written": 0,
+            "write_time_ms": 0,
+            "avg_write_await_ms": 0.0,
+            "io_time_ms": 0,
+            "weighted_io_time_ms": 0
+          },
+          "reads_completed": 0,
+          "bytes_read": 0,
+          "avg_read_await_ms": 0.0,
+          "writes_completed": 0,
+          "bytes_written": 0,
+          "avg_write_await_ms": 0.0,
+          "io_in_progress": 0
+        },
+        {
+          "device": "pmem0p10",
+          "instantaneous_io_in_progress": 0,
+          "cumulative": {
+            "reads_completed": 0,
+            "bytes_read": 0,
+            "read_time_ms": 0,
+            "avg_read_await_ms": 0.0,
+            "writes_completed": 0,
+            "bytes_written": 0,
+            "write_time_ms": 0,
+            "avg_write_await_ms": 0.0,
+            "io_time_ms": 0,
+            "weighted_io_time_ms": 0
+          },
+          "reads_completed": 0,
+          "bytes_read": 0,
+          "avg_read_await_ms": 0.0,
+          "writes_completed": 0,
+          "bytes_written": 0,
+          "avg_write_await_ms": 0.0,
+          "io_in_progress": 0
+        },
+        {
+          "device": "pmem0p11",
+          "instantaneous_io_in_progress": 0,
+          "cumulative": {
+            "reads_completed": 0,
+            "bytes_read": 0,
+            "read_time_ms": 0,
+            "avg_read_await_ms": 0.0,
+            "writes_completed": 0,
+            "bytes_written": 0,
+            "write_time_ms": 0,
+            "avg_write_await_ms": 0.0,
+            "io_time_ms": 0,
+            "weighted_io_time_ms": 0
+          },
+          "reads_completed": 0,
+          "bytes_read": 0,
+          "avg_read_await_ms": 0.0,
+          "writes_completed": 0,
+          "bytes_written": 0,
+          "avg_write_await_ms": 0.0,
+          "io_in_progress": 0
+        },
+        {
+          "device": "pmem0p12",
+          "instantaneous_io_in_progress": 0,
+          "cumulative": {
+            "reads_completed": 0,
+            "bytes_read": 0,
+            "read_time_ms": 0,
+            "avg_read_await_ms": 0.0,
+            "writes_completed": 0,
+            "bytes_written": 0,
+            "write_time_ms": 0,
+            "avg_write_await_ms": 0.0,
+            "io_time_ms": 0,
+            "weighted_io_time_ms": 0
+          },
+          "reads_completed": 0,
+          "bytes_read": 0,
+          "avg_read_await_ms": 0.0,
+          "writes_completed": 0,
+          "bytes_written": 0,
+          "avg_write_await_ms": 0.0,
+          "io_in_progress": 0
+        },
+        {
+          "device": "dm-0",
+          "instantaneous_io_in_progress": 0,
+          "cumulative": {
+            "reads_completed": 193,
+            "bytes_read": 2088448,
+            "read_time_ms": 17,
+            "avg_read_await_ms": 0.09,
+            "writes_completed": 370,
+            "bytes_written": 123547648,
+            "write_time_ms": 291,
+            "avg_write_await_ms": 0.79,
+            "io_time_ms": 245,
+            "weighted_io_time_ms": 332
+          },
+          "reads_completed": 193,
+          "bytes_read": 2088448,
+          "avg_read_await_ms": 0.09,
+          "writes_completed": 370,
+          "bytes_written": 123547648,
+          "avg_write_await_ms": 0.79,
+          "io_in_progress": 0
+        },
+        {
+          "device": "vda",
+          "instantaneous_io_in_progress": 0,
+          "cumulative": {
+            "reads_completed": 223,
+            "bytes_read": 6610944,
+            "read_time_ms": 92,
+            "avg_read_await_ms": 0.41,
+            "writes_completed": 81319,
+            "bytes_written": 332464128,
+            "write_time_ms": 28804,
+            "avg_write_await_ms": 0.35,
+            "io_time_ms": 26068,
+            "weighted_io_time_ms": 31461
+          },
+          "reads_completed": 223,
+          "bytes_read": 6610944,
+          "avg_read_await_ms": 0.41,
+          "writes_completed": 81319,
+          "bytes_written": 332464128,
+          "avg_write_await_ms": 0.35,
+          "io_in_progress": 0
+        },
+        {
+          "device": "vdb",
+          "instantaneous_io_in_progress": 0,
+          "cumulative": {
+            "reads_completed": 231,
+            "bytes_read": 5755392,
+            "read_time_ms": 134,
+            "avg_read_await_ms": 0.58,
+            "writes_completed": 809,
+            "bytes_written": 13602816,
+            "write_time_ms": 258,
+            "avg_write_await_ms": 0.32,
+            "io_time_ms": 173,
+            "weighted_io_time_ms": 470
+          },
+          "reads_completed": 231,
+          "bytes_read": 5755392,
+          "avg_read_await_ms": 0.58,
+          "writes_completed": 809,
+          "bytes_written": 13602816,
+          "avg_write_await_ms": 0.32,
+          "io_in_progress": 0
+        },
+        {
+          "device": "vdc",
+          "instantaneous_io_in_progress": 0,
+          "cumulative": {
+            "reads_completed": 7127,
+            "bytes_read": 461890048,
+            "read_time_ms": 3094,
+            "avg_read_await_ms": 0.43,
+            "writes_completed": 0,
+            "bytes_written": 0,
+            "write_time_ms": 0,
+            "avg_write_await_ms": 0.0,
+            "io_time_ms": 1358,
+            "weighted_io_time_ms": 3094
+          },
+          "reads_completed": 7127,
+          "bytes_read": 461890048,
+          "avg_read_await_ms": 0.43,
+          "writes_completed": 0,
+          "bytes_written": 0,
+          "avg_write_await_ms": 0.0,
+          "io_in_progress": 0
+        },
+        {
+          "device": "vdd",
+          "instantaneous_io_in_progress": 0,
+          "cumulative": {
+            "reads_completed": 62,
+            "bytes_read": 1933312,
+            "read_time_ms": 45,
+            "avg_read_await_ms": 0.73,
+            "writes_completed": 739,
+            "bytes_written": 10346496,
+            "write_time_ms": 425,
+            "avg_write_await_ms": 0.58,
+            "io_time_ms": 311,
+            "weighted_io_time_ms": 777
+          },
+          "reads_completed": 62,
+          "bytes_read": 1933312,
+          "avg_read_await_ms": 0.73,
+          "writes_completed": 739,
+          "bytes_written": 10346496,
+          "avg_write_await_ms": 0.58,
+          "io_in_progress": 0
+        },
+        {
+          "device": "dm-1",
+          "instantaneous_io_in_progress": 0,
+          "cumulative": {
+            "reads_completed": 19682,
+            "bytes_read": 457384448,
+            "read_time_ms": 10231,
+            "avg_read_await_ms": 0.52,
+            "writes_completed": 814,
+            "bytes_written": 6610944,
+            "write_time_ms": 1842,
+            "avg_write_await_ms": 2.26,
+            "io_time_ms": 1625,
+            "weighted_io_time_ms": 12073
+          },
+          "reads_completed": 19682,
+          "bytes_read": 457384448,
+          "avg_read_await_ms": 0.52,
+          "writes_completed": 814,
+          "bytes_written": 6610944,
+          "avg_write_await_ms": 2.26,
+          "io_in_progress": 0
+        }
+      ]
+    },
+    "network": {
+      "metric_semantics": {
+        "tcp_state_counts_and_queues": "instantaneous",
+        "interfaces_snmp_and_netstat": "cumulative_since_boot"
+      },
+      "tcp_state_counts": {
+        "ESTABLISHED": 0,
+        "SYN_SENT": 0,
+        "SYN_RECV": 0,
+        "FIN_WAIT1": 0,
+        "FIN_WAIT2": 0,
+        "TIME_WAIT": 0,
+        "CLOSE": 0,
+        "CLOSE_WAIT": 0,
+        "LAST_ACK": 0,
+        "LISTEN": 5,
+        "CLOSING": 0
+      },
+      "queued_sockets": [],
+      "interfaces": {
+        "lo": {
+          "rx_bytes": 33756,
+          "rx_packets": 148,
+          "rx_errs": 0,
+          "rx_drop": 0,
+          "tx_bytes": 33756,
+          "tx_packets": 148,
+          "tx_errs": 0,
+          "tx_drop": 0
+        }
+      },
+      "snmp": {
+        "Ip": {
+          "Forwarding": 1,
+          "DefaultTTL": 64,
+          "InReceives": 146,
+          "InHdrErrors": 0,
+          "InAddrErrors": 0,
+          "ForwDatagrams": 0,
+          "InUnknownProtos": 0,
+          "InDiscards": 0,
+          "InDelivers": 146,
+          "OutRequests": 146,
+          "OutDiscards": 0,
+          "OutNoRoutes": 0,
+          "ReasmTimeout": 0,
+          "ReasmReqds": 0,
+          "ReasmOKs": 0,
+          "ReasmFails": 0,
+          "FragOKs": 0,
+          "FragFails": 0,
+          "FragCreates": 0,
+          "OutTransmits": 146
+        },
+        "Icmp": {
+          "InMsgs": 0,
+          "InErrors": 0,
+          "InCsumErrors": 0,
+          "InDestUnreachs": 0,
+          "InTimeExcds": 0,
+          "InParmProbs": 0,
+          "InSrcQuenchs": 0,
+          "InRedirects": 0,
+          "InEchos": 0,
+          "InEchoReps": 0,
+          "InTimestamps": 0,
+          "InTimestampReps": 0,
+          "InAddrMasks": 0,
+          "InAddrMaskReps": 0,
+          "OutMsgs": 0,
+          "OutErrors": 0,
+          "OutRateLimitGlobal": 0,
+          "OutRateLimitHost": 0,
+          "OutDestUnreachs": 0,
+          "OutTimeExcds": 0,
+          "OutParmProbs": 0,
+          "OutSrcQuenchs": 0,
+          "OutRedirects": 0,
+          "OutEchos": 0,
+          "OutEchoReps": 0,
+          "OutTimestamps": 0,
+          "OutTimestampReps": 0,
+          "OutAddrMasks": 0,
+          "OutAddrMaskReps": 0
+        },
+        "Tcp": {
+          "RtoAlgorithm": 1,
+          "RtoMin": 200,
+          "RtoMax": 120000,
+          "MaxConn": -1,
+          "ActiveOpens": 19,
+          "PassiveOpens": 17,
+          "AttemptFails": 2,
+          "EstabResets": 18,
+          "CurrEstab": 0,
+          "InSegs": 116,
+          "OutSegs": 116,
+          "RetransSegs": 0,
+          "InErrs": 0,
+          "OutRsts": 19,
+          "InCsumErrors": 0
+        },
+        "Udp": {
+          "InDatagrams": 32,
+          "NoPorts": 0,
+          "InErrors": 0,
+          "OutDatagrams": 32,
+          "RcvbufErrors": 0,
+          "SndbufErrors": 0,
+          "InCsumErrors": 0,
+          "IgnoredMulti": 0,
+          "MemErrors": 0
+        },
+        "UdpLite": {
+          "InDatagrams": 0,
+          "NoPorts": 0,
+          "InErrors": 0,
+          "OutDatagrams": 0,
+          "RcvbufErrors": 0,
+          "SndbufErrors": 0,
+          "InCsumErrors": 0,
+          "IgnoredMulti": 0,
+          "MemErrors": 0
+        }
+      },
+      "netstat": {
+        "TcpExt": {
+          "SyncookiesSent": 0,
+          "SyncookiesRecv": 0,
+          "SyncookiesFailed": 0,
+          "EmbryonicRsts": 0,
+          "PruneCalled": 0,
+          "RcvPruned": 0,
+          "OfoPruned": 0,
+          "OutOfWindowIcmps": 0,
+          "LockDroppedIcmps": 0,
+          "ArpFilter": 0,
+          "TW": 10,
+          "TWRecycled": 0,
+          "TWKilled": 0,
+          "PAWSActive": 0,
+          "PAWSEstab": 0,
+          "DelayedACKs": 10,
+          "DelayedACKLocked": 1,
+          "DelayedACKLost": 0,
+          "ListenOverflows": 0,
+          "ListenDrops": 0,
+          "TCPHPHits": 0,
+          "TCPPureAcks": 28,
+          "TCPHPAcks": 0,
+          "TCPRenoRecovery": 0,
+          "TCPSackRecovery": 0,
+          "TCPSACKReneging": 0,
+          "TCPSACKReorder": 0,
+          "TCPRenoReorder": 0,
+          "TCPTSReorder": 0,
+          "TCPFullUndo": 0,
+          "TCPPartialUndo": 0,
+          "TCPDSACKUndo": 0,
+          "TCPLossUndo": 0,
+          "TCPLostRetransmit": 0,
+          "TCPRenoFailures": 0,
+          "TCPSackFailures": 0,
+          "TCPLossFailures": 0,
+          "TCPFastRetrans": 0,
+          "TCPSlowStartRetrans": 0,
+          "TCPTimeouts": 0,
+          "TCPLossProbes": 0,
+          "TCPLossProbeRecovery": 0,
+          "TCPRenoRecoveryFail": 0,
+          "TCPSackRecoveryFail": 0,
+          "TCPRcvCollapsed": 0,
+          "TCPBacklogCoalesce": 0,
+          "TCPDSACKOldSent": 0,
+          "TCPDSACKOfoSent": 0,
+          "TCPDSACKRecv": 0,
+          "TCPDSACKOfoRecv": 0,
+          "TCPAbortOnData": 6,
+          "TCPAbortOnClose": 1,
+          "TCPAbortOnMemory": 0,
+          "TCPAbortOnTimeout": 0,
+          "TCPAbortOnLinger": 0,
+          "TCPAbortFailed": 0,
+          "TCPMemoryPressures": 0,
+          "TCPMemoryPressuresChrono": 0,
+          "TCPSACKDiscard": 0,
+          "TCPDSACKIgnoredOld": 0,
+          "TCPDSACKIgnoredNoUndo": 0,
+          "TCPSpuriousRTOs": 0,
+          "TCPMD5NotFound": 0,
+          "TCPMD5Unexpected": 0,
+          "TCPMD5Failure": 0,
+          "TCPSackShifted": 0,
+          "TCPSackMerged": 0,
+          "TCPSackShiftFallback": 0,
+          "TCPBacklogDrop": 0,
+          "PFMemallocDrop": 0,
+          "TCPMinTTLDrop": 0,
+          "TCPDeferAcceptDrop": 0,
+          "IPReversePathFilter": 0,
+          "TCPTimeWaitOverflow": 0,
+          "TCPReqQFullDoCookies": 0,
+          "TCPReqQFullDrop": 0,
+          "TCPRetransFail": 0,
+          "TCPRcvCoalesce": 0,
+          "TCPOFOQueue": 0,
+          "TCPOFODrop": 0,
+          "TCPOFOMerge": 0,
+          "TCPChallengeACK": 0,
+          "TCPSYNChallenge": 0,
+          "TCPFastOpenActive": 0,
+          "TCPFastOpenActiveFail": 0,
+          "TCPFastOpenPassive": 0,
+          "TCPFastOpenPassiveFail": 0,
+          "TCPFastOpenListenOverflow": 0,
+          "TCPFastOpenCookieReqd": 0,
+          "TCPFastOpenBlackhole": 0,
+          "TCPSpuriousRtxHostQueues": 0,
+          "BusyPollRxPackets": 0,
+          "TCPAutoCorking": 0,
+          "TCPFromZeroWindowAdv": 0,
+          "TCPToZeroWindowAdv": 0,
+          "TCPWantZeroWindowAdv": 0,
+          "TCPSynRetrans": 0,
+          "TCPOrigDataSent": 33,
+          "TCPHystartTrainDetect": 0,
+          "TCPHystartTrainCwnd": 0,
+          "TCPHystartDelayDetect": 0,
+          "TCPHystartDelayCwnd": 0,
+          "TCPACKSkippedSynRecv": 0,
+          "TCPACKSkippedPAWS": 0,
+          "TCPACKSkippedSeq": 0,
+          "TCPACKSkippedFinWait2": 0,
+          "TCPACKSkippedTimeWait": 0,
+          "TCPACKSkippedChallenge": 0,
+          "TCPWinProbe": 0,
+          "TCPKeepAlive": 0,
+          "TCPMTUPFail": 0,
+          "TCPMTUPSuccess": 0,
+          "TCPDelivered": 34,
+          "TCPDeliveredCE": 0,
+          "TCPAckCompressed": 0,
+          "TCPZeroWindowDrop": 0,
+          "TCPRcvQDrop": 0,
+          "TCPWqueueTooBig": 0,
+          "TCPFastOpenPassiveAltKey": 0,
+          "TcpTimeoutRehash": 0,
+          "TcpDuplicateDataRehash": 0,
+          "TCPDSACKRecvSegs": 0,
+          "TCPDSACKIgnoredDubious": 0,
+          "TCPMigrateReqSuccess": 0,
+          "TCPMigrateReqFailure": 0,
+          "TCPPLBRehash": 0,
+          "TCPAORequired": 0,
+          "TCPAOBad": 0,
+          "TCPAOKeyNotFound": 0,
+          "TCPAOGood": 0,
+          "TCPAODroppedIcmps": 0
+        },
+        "IpExt": {
+          "InNoRoutes": 0,
+          "InTruncatedPkts": 0,
+          "InMcastPkts": 0,
+          "OutMcastPkts": 0,
+          "InBcastPkts": 0,
+          "OutBcastPkts": 0,
+          "InOctets": 33616,
+          "OutOctets": 33616,
+          "InMcastOctets": 0,
+          "OutMcastOctets": 0,
+          "InBcastOctets": 0,
+          "OutBcastOctets": 0,
+          "InCsumErrors": 0,
+          "InNoECTPkts": 146,
+          "InECT1Pkts": 0,
+          "InECT0Pkts": 0,
+          "InCEPkts": 0,
+          "ReasmOverlaps": 0
+        }
+      },
+      "tcp_retransmission_pct": 0.0
+    },
+    "process": {
+      "metric_semantics": {
+        "rss_bytes": "instantaneous",
+        "total_ticks": "cumulative_since_process_start"
+      },
+      "process_count": 12,
+      "top_by_cpu_ticks": [
+        {
+          "pid": 74,
+          "comm": "python3",
+          "state": "S",
+          "ppid": 1,
+          "minflt": 13044,
+          "majflt": 385,
+          "utime": 705,
+          "stime": 69,
+          "num_threads": 2,
+          "vsize_bytes": 399171584,
+          "rss_pages": 22764,
+          "rss_bytes": 93241344,
+          "total_ticks": 774
+        },
+        {
+          "pid": 1,
+          "comm": "shell_wrapper.p",
+          "state": "S",
+          "ppid": 0,
+          "minflt": 10460,
+          "majflt": 56,
+          "utime": 709,
+          "stime": 60,
+          "num_threads": 3,
+          "vsize_bytes": 198443008,
+          "rss_pages": 10049,
+          "rss_bytes": 41160704,
+          "total_ticks": 769
+        },
+        {
+          "pid": 75,
+          "comm": "vmaas_tiered_fs",
+          "state": "S",
+          "ppid": 1,
+          "minflt": 4632,
+          "majflt": 324,
+          "utime": 28,
+          "stime": 19,
+          "num_threads": 8,
+          "vsize_bytes": 1934983168,
+          "rss_pages": 11734,
+          "rss_bytes": 48062464,
+          "total_ticks": 47
+        },
+        {
+          "pid": 15,
+          "comm": "Xtigervnc",
+          "state": "S",
+          "ppid": 1,
+          "minflt": 17679,
+          "majflt": 463,
+          "utime": 4,
+          "stime": 21,
+          "num_threads": 1,
+          "vsize_bytes": 264998912,
+          "rss_pages": 22989,
+          "rss_bytes": 94162944,
+          "total_ticks": 25
+        },
+        {
+          "pid": 77,
+          "comm": "stterm",
+          "state": "S",
+          "ppid": 58,
+          "minflt": 712,
+          "majflt": 18,
+          "utime": 1,
+          "stime": 2,
+          "num_threads": 1,
+          "vsize_bytes": 13021184,
+          "rss_pages": 1870,
+          "rss_bytes": 7659520,
+          "total_ticks": 3
+        }
+      ],
+      "top_by_rss_bytes": [
+        {
+          "pid": 15,
+          "comm": "Xtigervnc",
+          "state": "S",
+          "ppid": 1,
+          "minflt": 17679,
+          "majflt": 463,
+          "utime": 4,
+          "stime": 21,
+          "num_threads": 1,
+          "vsize_bytes": 264998912,
+          "rss_pages": 22989,
+          "rss_bytes": 94162944,
+          "total_ticks": 25
+        },
+        {
+          "pid": 74,
+          "comm": "python3",
+          "state": "S",
+          "ppid": 1,
+          "minflt": 13044,
+          "majflt": 385,
+          "utime": 705,
+          "stime": 69,
+          "num_threads": 2,
+          "vsize_bytes": 399171584,
+          "rss_pages": 22764,
+          "rss_bytes": 93241344,
+          "total_ticks": 774
+        },
+        {
+          "pid": 75,
+          "comm": "vmaas_tiered_fs",
+          "state": "S",
+          "ppid": 1,
+          "minflt": 4632,
+          "majflt": 324,
+          "utime": 28,
+          "stime": 19,
+          "num_threads": 8,
+          "vsize_bytes": 1934983168,
+          "rss_pages": 11734,
+          "rss_bytes": 48062464,
+          "total_ticks": 47
+        },
+        {
+          "pid": 1,
+          "comm": "shell_wrapper.p",
+          "state": "S",
+          "ppid": 0,
+          "minflt": 10460,
+          "majflt": 56,
+          "utime": 709,
+          "stime": 60,
+          "num_threads": 3,
+          "vsize_bytes": 198443008,
+          "rss_pages": 10049,
+          "rss_bytes": 41160704,
+          "total_ticks": 769
+        },
+        {
+          "pid": 634,
+          "comm": "python3",
+          "state": "S",
+          "ppid": 1,
+          "minflt": 2433,
+          "majflt": 0,
+          "utime": 2,
+          "stime": 1,
+          "num_threads": 1,
+          "vsize_bytes": 23666688,
+          "rss_pages": 4354,
+          "rss_bytes": 17833984,
+          "total_ticks": 3
+        }
+      ]
+    }
+  },
+  "warnings": [],
+  "recommendations": [
+    "Host baseline healthy.",
+    "No cgroup adjustments required.",
+    "No block I/O remediation required.",
+    "No immediate network stack remediation needed.",
+    "Pass --pid <PID> to inspect target process /proc/<pid>/sched and /proc/<pid>/io."
+  ],
+  "errors": []
+}

@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  validate-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate Python syntax
+        run: python3 -m py_compile scripts/*.py tests/*.py
+
+      - name: Validate Bash syntax
+        run: |
+          bash -n scripts/check_perf_capabilities.sh
+          bash -n scripts/inspect_io.sh
+          bash -n scripts/profile_process.sh
+
+      - name: Validate SKILL.md frontmatter and executable bits
+        run: |
+          python3 -c '
+          from pathlib import Path
+          import os
+          text = Path("SKILL.md").read_text(encoding="utf-8")
+          assert text.startswith("---\\n"), "Missing YAML frontmatter start"
+          parts = text.split("---", 2)
+          assert len(parts) >= 3, "Missing YAML frontmatter end"
+          assert "name: linux-perf-doctor" in parts[1], "Invalid skill name"
+          assert "description:" in parts[1], "Missing description"
+          for s in Path("scripts").iterdir():
+              assert os.access(s, os.X_OK), f"Script not executable: {s}"
+          '
+
+      - name: Run unit and integration test suite
+        run: python3 -m unittest discover -s tests -v

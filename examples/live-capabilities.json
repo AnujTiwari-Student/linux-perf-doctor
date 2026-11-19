@@ -1,0 +1,141 @@
+{
+  "status": "ok",
+  "timestamp": "2026-11-17T16:16:25.019172+00:00",
+  "platform": {
+    "system": "Linux",
+    "release": "6.12.105+",
+    "machine": "x86_64",
+    "python_version": "3.11.2",
+    "euid": 1235
+  },
+  "tool_versions": {
+    "python": "3.11.2",
+    "vmstat": "vmstat from procps-ng 4.0.2",
+    "top": "top from procps-ng 4.0.2",
+    "dmesg": "dmesg from util-linux 2.38.1"
+  },
+  "findings": [
+    {
+      "id": "CAP-001",
+      "category": "capabilities",
+      "severity": "info",
+      "classification": "measured",
+      "title": "Completed Linux capability bitmask (CapEff), sysctl security guard, and profiler binary inventory",
+      "evidence": {
+        "cap_eff_hex": "0000000000000000",
+        "CAP_PERFMON": false,
+        "CAP_SYS_PTRACE": false,
+        "CAP_BPF": false,
+        "CAP_SYS_ADMIN": false,
+        "perf_event_paranoid": "2",
+        "ptrace_scope": "1",
+        "kptr_restrict": "1",
+        "cgroup_v2": true,
+        "cgroup_v1": false,
+        "psi_available": true
+      },
+      "likely_causes": [
+        "Host kernel security posture and container capability bounding set"
+      ],
+      "confidence": "high",
+      "recommendation": "Use passive /proc and /sys collectors by default; invoke active profilers only when permitted and explicitly opted in."
+    }
+  ],
+  "metrics": {
+    "metric_semantics": "instantaneous",
+    "capabilities": {
+      "raw_hex": "0000000000000000",
+      "valid": true,
+      "capabilities": {
+        "CAP_DAC_READ_SEARCH": false,
+        "CAP_KILL": false,
+        "CAP_NET_ADMIN": false,
+        "CAP_IPC_LOCK": false,
+        "CAP_SYS_PTRACE": false,
+        "CAP_SYS_ADMIN": false,
+        "CAP_SYS_RESOURCE": false,
+        "CAP_SYSLOG": false,
+        "CAP_PERFMON": false,
+        "CAP_BPF": false
+      }
+    },
+    "tools": {
+      "perf": {
+        "available": false,
+        "path": null
+      },
+      "strace": {
+        "available": false,
+        "path": null
+      },
+      "ss": {
+        "available": false,
+        "path": null
+      },
+      "iostat": {
+        "available": false,
+        "path": null
+      },
+      "vmstat": {
+        "available": true,
+        "path": "/usr/bin/vmstat"
+      },
+      "pidstat": {
+        "available": false,
+        "path": null
+      },
+      "top": {
+        "available": true,
+        "path": "/usr/bin/top"
+      },
+      "dmesg": {
+        "available": true,
+        "path": "/usr/bin/dmesg"
+      },
+      "bpftool": {
+        "available": false,
+        "path": null
+      },
+      "bpftrace": {
+        "available": false,
+        "path": null
+      },
+      "execsnoop-bpfcc": {
+        "available": false,
+        "path": null
+      },
+      "biolatency-bpfcc": {
+        "available": false,
+        "path": null
+      },
+      "ip": {
+        "available": false,
+        "path": null
+      }
+    },
+    "kernel_guards": {
+      "perf_event_paranoid": "2",
+      "ptrace_scope": "1",
+      "kptr_restrict": "1",
+      "dmesg_restrict": "1"
+    },
+    "filesystems": {
+      "proc_mounted": true,
+      "sys_mounted": true,
+      "cgroup_v2": true,
+      "cgroup_v1": false,
+      "psi_available": true
+    }
+  },
+  "warnings": [
+    "Unprivileged process lacks CAP_PERFMON/CAP_SYS_ADMIN and kernel.perf_event_paranoid=2.",
+    "Process lacks CAP_SYS_PTRACE and kernel.yama.ptrace_scope=1 restricts attaching strace to non-child PIDs.",
+    "Process lacks CAP_BPF and CAP_SYS_ADMIN; eBPF program loading (bpftool/bpftrace/bcc) is restricted.",
+    "Unavailable optional CLI utilities: perf, strace, ss, iostat, pidstat, bpftool, bpftrace, execsnoop-bpfcc, biolatency-bpfcc, ip"
+  ],
+  "recommendations": [
+    "Use passive /proc and cgroup telemetry collectors, or grant CAP_PERFMON for hardware PMU profiling.",
+    "Rely on /proc/[pid]/sched and /proc/[pid]/status context-switch counters when CAP_SYS_PTRACE is unavailable."
+  ],
+  "errors": []
+}

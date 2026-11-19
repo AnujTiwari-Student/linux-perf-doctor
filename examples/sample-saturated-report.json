@@ -1,0 +1,1795 @@
+{
+  "status": "critical",
+  "timestamp": "2026-11-17T16:16:25.092813+00:00",
+  "platform": {
+    "system": "Linux",
+    "release": "6.12.105+",
+    "machine": "x86_64",
+    "cpu_count": 2
+  },
+  "tool_versions": {
+    "python": "3.11.2"
+  },
+  "findings": [
+    {
+      "id": "SYS-CPU-001",
+      "category": "cpu",
+      "severity": "high",
+      "classification": "measured",
+      "title": "High CPU utilization detected (96.86% busy)",
+      "evidence": {
+        "busy_pct": 96.86,
+        "user_pct": 56.85,
+        "system_pct": 22.3,
+        "procs_running": 12,
+        "cpu_count": 2,
+        "semantics": "cumulative_since_boot"
+      },
+      "likely_causes": [
+        "Compute-bound worker loops or serialization overhead"
+      ],
+      "confidence": "high",
+      "recommendation": "Inspect top CPU-consuming PIDs with scripts/collect_process_metrics.py and check cgroup throttling."
+    },
+    {
+      "id": "SYS-IO-001",
+      "category": "io",
+      "severity": "medium",
+      "classification": "measured",
+      "title": "Elevated I/O wait (17.59%) or blocked tasks (4)",
+      "evidence": {
+        "iowait_pct": 17.59,
+        "procs_blocked": 4,
+        "psi_io": {
+          "some": {
+            "avg10": 55.0,
+            "avg60": 40.0,
+            "avg300": 25.0,
+            "total": 12500000.0
+          },
+          "full": {
+            "avg10": 38.2,
+            "avg60": 29.0,
+            "avg300": 15.0,
+            "total": 8400000.0
+          }
+        }
+      },
+      "likely_causes": [
+        "Synchronous disk writes (fsync/fdatasync) saturating backing storage",
+        "Memory pressure causing major page faults and swap I/O"
+      ],
+      "confidence": "high",
+      "recommendation": "Run scripts/inspect_io.sh to inspect per-device await/utilization and identify uninterruptible sleep (D-state) processes."
+    },
+    {
+      "id": "SYS-MEM-001",
+      "category": "memory",
+      "severity": "high",
+      "classification": "measured",
+      "title": "High system memory utilization (95.0% used)",
+      "evidence": {
+        "mem_total_bytes": 16777216000,
+        "mem_available_bytes": 838860800,
+        "mem_used_pct": 95.0,
+        "swap_used_pct": 75.0
+      },
+      "likely_causes": [
+        "Unbounded application heap or cache growth",
+        "Insufficient container or VM memory allocation relative to worker concurrency"
+      ],
+      "confidence": "high",
+      "recommendation": "Check process RSS growth using scripts/collect_process_metrics.py and verify cgroup memory.max limits."
+    },
+    {
+      "id": "SYS-MEM-002",
+      "category": "memory",
+      "severity": "high",
+      "classification": "measured",
+      "title": "Kernel OOM killer invocations recorded (oom_kill=3)",
+      "evidence": {
+        "vmstat_oom_kill": 3,
+        "pgmajfault": 18450
+      },
+      "likely_causes": [
+        "Host or cgroup memory exhaustion triggering Linux OOM killer"
+      ],
+      "confidence": "high",
+      "recommendation": "Inspect cgroup memory.events for oom_kill counters and set bounded heap limits on worker processes."
+    },
+    {
+      "id": "CGRP-CPU-001",
+      "category": "cgroup_cpu",
+      "severity": "high",
+      "classification": "measured",
+      "title": "Container CFS CPU throttling detected (35.0% of periods throttled)",
+      "evidence": {
+        "cpu_max_raw": "50000 100000",
+        "quota_us": 50000,
+        "period_us": 100000,
+        "effective_cpus": 0.5,
+        "nr_periods": 12000,
+        "nr_throttled": 4200,
+        "throttled_usec": 540000000,
+        "throttle_pct": 35.0
+      },
+      "likely_causes": [
+        "Multi-threaded application bursting above container CPU quota within 100ms period",
+        "Restrictive Kubernetes/Docker CPU limit relative to worker thread count"
+      ],
+      "confidence": "high",
+      "recommendation": "Increase container CPU limit or tune runtime worker threads (e.g., GOMAXPROCS, UV_THREADPOOL_SIZE) to match effective CPU quota."
+    },
+    {
+      "id": "CGRP-MEM-001",
+      "category": "cgroup_memory",
+      "severity": "critical",
+      "classification": "measured",
+      "title": "Cgroup OOM events recorded (oom_kill=2, oom=4)",
+      "evidence": {
+        "current_bytes": 966367641,
+        "max_bytes": 1073741824,
+        "utilization_pct": 90.0,
+        "events": {
+          "low": 0,
+          "high": 450,
+          "max": 82,
+          "oom": 4,
+          "oom_kill": 2
+        }
+      },
+      "likely_causes": [
+        "Container memory working set exceeded cgroup memory limit"
+      ],
+      "confidence": "high",
+      "recommendation": "Increase container memory limit or configure runtime heap bounds (e.g., NODE_OPTIONS=--max-old-space-size, GOMEMLIMIT) below cgroup memory ceiling."
+    },
+    {
+      "id": "CGRP-PSI-001",
+      "category": "cgroup_psi",
+      "severity": "high",
+      "classification": "measured",
+      "title": "Elevated per-cgroup Pressure Stall Information (memory full avg10=11.8%, io full avg10=31.4%)",
+      "evidence": {
+        "cpu": {
+          "some": {
+            "avg10": 38.5,
+            "avg60": 29.1,
+            "avg300": 18.0,
+            "total": 7400000.0
+          },
+          "full": {
+            "avg10": 21.2,
+            "avg60": 15.4,
+            "avg300": 9.1,
+            "total": 3900000.0
+          }
+        },
+        "memory": {
+          "some": {
+            "avg10": 24.0,
+            "avg60": 18.2,
+            "avg300": 9.5,
+            "total": 3100000.0
+          },
+          "full": {
+            "avg10": 11.8,
+            "avg60": 7.4,
+            "avg300": 3.2,
+            "total": 1450000.0
+          }
+        },
+        "io": {
+          "some": {
+            "avg10": 49.0,
+            "avg60": 35.0,
+            "avg300": 22.0,
+            "total": 9200000.0
+          },
+          "full": {
+            "avg10": 31.4,
+            "avg60": 24.1,
+            "avg300": 14.0,
+            "total": 6100000.0
+          }
+        }
+      },
+      "likely_causes": [
+        "Cgroup tasks stalled on direct memory reclaim or cgroup I/O throttling"
+      ],
+      "confidence": "high",
+      "recommendation": "Inspect cgroup memory.high/memory.max and io.max limits."
+    },
+    {
+      "id": "NET-TCP-001",
+      "category": "network",
+      "severity": "medium",
+      "classification": "measured",
+      "title": "High CLOSE_WAIT socket accumulation (65 sockets)",
+      "evidence": {
+        "close_wait_count": 65,
+        "state_counts": {
+          "ESTABLISHED": 0,
+          "SYN_SENT": 0,
+          "SYN_RECV": 0,
+          "FIN_WAIT1": 0,
+          "FIN_WAIT2": 0,
+          "TIME_WAIT": 0,
+          "CLOSE": 0,
+          "CLOSE_WAIT": 65,
+          "LAST_ACK": 0,
+          "LISTEN": 0,
+          "CLOSING": 0
+        }
+      },
+      "likely_causes": [
+        "Application failing to call close() on sockets after remote peer FIN disconnect",
+        "Worker thread starvation preventing socket cleanup"
+      ],
+      "confidence": "high",
+      "recommendation": "Audit application connection pool lifecycle and ensure HTTP/DB client connections are closed in finally/defer blocks."
+    },
+    {
+      "id": "NET-SNMP-RETRANS",
+      "category": "network_retransmissions",
+      "severity": "medium",
+      "classification": "measured",
+      "title": "Elevated TCP segment retransmission rate (2.3%: 18400/800000 segments)",
+      "evidence": {
+        "out_segs_cumulative": 800000,
+        "retrans_segs_cumulative": 18400,
+        "retrans_pct": 2.3,
+        "estab_resets": 185
+      },
+      "likely_causes": [
+        "Network congestion, NIC ring buffer drops, or cloud virtual switch bandwidth policing"
+      ],
+      "confidence": "high",
+      "recommendation": "Check interface tx_drop/rx_drop counters and TCP congestion control settings."
+    },
+    {
+      "id": "NET-SNMP-UDPBUF",
+      "category": "network_udp",
+      "severity": "medium",
+      "classification": "measured",
+      "title": "UDP socket receive buffer drops recorded (RcvbufErrors=24)",
+      "evidence": {
+        "udp_mib": {
+          "InDatagrams": 120000,
+          "NoPorts": 45,
+          "InErrors": 28,
+          "OutDatagrams": 118000,
+          "RcvbufErrors": 24,
+          "SndbufErrors": 0,
+          "InCsumErrors": 0,
+          "IgnoredMulti": 0,
+          "MemErrors": 0
+        }
+      },
+      "likely_causes": [
+        "net.core.rmem_max too small for burst UDP traffic (e.g., DNS/QUIC/StatsD)"
+      ],
+      "confidence": "high",
+      "recommendation": "Increase net.core.rmem_max or scale UDP reader threads."
+    },
+    {
+      "id": "NET-NETSTAT-LISTEN",
+      "category": "listen_backlog",
+      "severity": "high",
+      "classification": "measured",
+      "title": "TCP listen queue overflows detected (ListenOverflows=340, ListenDrops=340)",
+      "evidence": {
+        "ListenOverflows": 340,
+        "ListenDrops": 340,
+        "TCPSynRetrans": 290,
+        "TCPTimeouts": 190
+      },
+      "likely_causes": [
+        "Application accept() loop is stalled or net.core.somaxconn / net.ipv4.tcp_max_syn_backlog is undersized"
+      ],
+      "confidence": "high",
+      "recommendation": "Raise net.core.somaxconn and application listen() backlog parameter, and check worker CPU throttling."
+    },
+    {
+      "id": "NET-QUEUE-001",
+      "category": "network",
+      "severity": "medium",
+      "classification": "measured",
+      "title": "Detected 65 sockets with elevated Recv-Q or Send-Q buffers",
+      "evidence": {
+        "queued_sockets": [
+          {
+            "table": "tcp",
+            "local_address": "0100007F:1F90",
+            "state": "CLOSE_WAIT",
+            "tx_queue": 0,
+            "rx_queue": 8192
+          },
+          {
+            "table": "tcp",
+            "local_address": "0100007F:1F90",
+            "state": "CLOSE_WAIT",
+            "tx_queue": 0,
+            "rx_queue": 8192
+          },
+          {
+            "table": "tcp",
+            "local_address": "0100007F:1F90",
+            "state": "CLOSE_WAIT",
+            "tx_queue": 0,
+            "rx_queue": 8192
+          },
+          {
+            "table": "tcp",
+            "local_address": "0100007F:1F90",
+            "state": "CLOSE_WAIT",
+            "tx_queue": 0,
+            "rx_queue": 8192
+          },
+          {
+            "table": "tcp",
+            "local_address": "0100007F:1F90",
+            "state": "CLOSE_WAIT",
+            "tx_queue": 0,
+            "rx_queue": 8192
+          },
+          {
+            "table": "tcp",
+            "local_address": "0100007F:1F90",
+            "state": "CLOSE_WAIT",
+            "tx_queue": 0,
+            "rx_queue": 8192
+          },
+          {
+            "table": "tcp",
+            "local_address": "0100007F:1F90",
+            "state": "CLOSE_WAIT",
+            "tx_queue": 0,
+            "rx_queue": 8192
+          },
+          {
+            "table": "tcp",
+            "local_address": "0100007F:1F90",
+            "state": "CLOSE_WAIT",
+            "tx_queue": 0,
+            "rx_queue": 8192
+          },
+          {
+            "table": "tcp",
+            "local_address": "0100007F:1F90",
+            "state": "CLOSE_WAIT",
+            "tx_queue": 0,
+            "rx_queue": 8192
+          },
+          {
+            "table": "tcp",
+            "local_address": "0100007F:1F90",
+            "state": "CLOSE_WAIT",
+            "tx_queue": 0,
+            "rx_queue": 8192
+          }
+        ]
+      },
+      "likely_causes": [
+        "Slow application reader (high Recv-Q) or congested downstream receiver (high Send-Q)"
+      ],
+      "confidence": "high",
+      "recommendation": "Inspect stalled reader/writer processes holding queued sockets."
+    },
+    {
+      "id": "NET-IFACE-001",
+      "category": "network",
+      "severity": "medium",
+      "classification": "measured",
+      "title": "Network interface packet drops or errors detected (total=547)",
+      "evidence": {
+        "interfaces": {
+          "eth0": {
+            "rx_bytes": 99400000,
+            "rx_packets": 85000,
+            "rx_errs": 12,
+            "rx_drop": 450,
+            "tx_bytes": 88200000,
+            "tx_packets": 79000,
+            "tx_errs": 0,
+            "tx_drop": 85
+          }
+        }
+      },
+      "likely_causes": [
+        "Ring buffer exhaustion, NIC IRQ saturation, or virtual bridge policing"
+      ],
+      "confidence": "medium",
+      "recommendation": "Inspect per-interface rx_drop/tx_drop counts and verify ring buffer sizing."
+    },
+    {
+      "id": "PROC-STATE-001",
+      "category": "process",
+      "severity": "high",
+      "classification": "measured",
+      "title": "Process 4242 (order-worker) is in uninterruptible sleep (D state)",
+      "evidence": {
+        "pid": 4242,
+        "comm": "order-worker",
+        "state": "D",
+        "iowait_sum_ms": 42300.75
+      },
+      "likely_causes": [
+        "Blocked on synchronous disk I/O, NFS mount stall, or kernel mutex contention"
+      ],
+      "confidence": "high",
+      "recommendation": "Inspect block device latency with scripts/inspect_io.sh and check /proc/<pid>/sched iowait_sum."
+    },
+    {
+      "id": "PROC-SCHED-001",
+      "category": "scheduling",
+      "severity": "medium",
+      "classification": "measured",
+      "title": "Process 4242 (order-worker) exhibits CPU run-queue contention or involuntary preemption",
+      "evidence": {
+        "runqueue_wait_sum_ms": 18450.25,
+        "nr_migrations": 1840,
+        "voluntary_ctxt_switches": 142000,
+        "nonvoluntary_ctxt_switches": 89000
+      },
+      "likely_causes": [
+        "Thread count exceeds available CPU cores or cgroup CFS quota is throttling runnable threads"
+      ],
+      "confidence": "high",
+      "recommendation": "Compare process thread count against cgroup CPU quota using scripts/inspect_cgroups.py."
+    },
+    {
+      "id": "PROC-MEM-001",
+      "category": "process",
+      "severity": "medium",
+      "classification": "measured",
+      "title": "Process 4242 experiencing swap usage or major page faults",
+      "evidence": {
+        "pid": 4242,
+        "swap_bytes": 0,
+        "majflt": 1850,
+        "rss_bytes": 536870912
+      },
+      "likely_causes": [
+        "Working set exceeds available physical or cgroup memory"
+      ],
+      "confidence": "high",
+      "recommendation": "Tune process memory footprint or increase container memory.max allocation."
+    },
+    {
+      "id": "HYP-CGRP-QUOTA",
+      "category": "correlation",
+      "severity": "high",
+      "classification": "hypothesis",
+      "title": "Container CFS quota throttling is actively restricting application threads",
+      "evidence": {
+        "cgroup_throttle_pct": 35.0,
+        "host_idle_pct": 3.14
+      },
+      "likely_causes": [
+        "Container CPU quota (cpu.max / cfs_quota_us) is exhausted within 100ms scheduling periods"
+      ],
+      "confidence": "high",
+      "recommendation": "Raise container CPU limit or right-size worker thread pool count to match container effective CPUs."
+    }
+  ],
+  "bottlenecks": [
+    {
+      "id": "SYS-CPU-001",
+      "category": "cpu",
+      "severity": "high",
+      "classification": "measured",
+      "title": "High CPU utilization detected (96.86% busy)",
+      "evidence": {
+        "busy_pct": 96.86,
+        "user_pct": 56.85,
+        "system_pct": 22.3,
+        "procs_running": 12,
+        "cpu_count": 2,
+        "semantics": "cumulative_since_boot"
+      },
+      "likely_causes": [
+        "Compute-bound worker loops or serialization overhead"
+      ],
+      "confidence": "high",
+      "recommendation": "Inspect top CPU-consuming PIDs with scripts/collect_process_metrics.py and check cgroup throttling."
+    },
+    {
+      "id": "SYS-IO-001",
+      "category": "io",
+      "severity": "medium",
+      "classification": "measured",
+      "title": "Elevated I/O wait (17.59%) or blocked tasks (4)",
+      "evidence": {
+        "iowait_pct": 17.59,
+        "procs_blocked": 4,
+        "psi_io": {
+          "some": {
+            "avg10": 55.0,
+            "avg60": 40.0,
+            "avg300": 25.0,
+            "total": 12500000.0
+          },
+          "full": {
+            "avg10": 38.2,
+            "avg60": 29.0,
+            "avg300": 15.0,
+            "total": 8400000.0
+          }
+        }
+      },
+      "likely_causes": [
+        "Synchronous disk writes (fsync/fdatasync) saturating backing storage",
+        "Memory pressure causing major page faults and swap I/O"
+      ],
+      "confidence": "high",
+      "recommendation": "Run scripts/inspect_io.sh to inspect per-device await/utilization and identify uninterruptible sleep (D-state) processes."
+    },
+    {
+      "id": "SYS-MEM-001",
+      "category": "memory",
+      "severity": "high",
+      "classification": "measured",
+      "title": "High system memory utilization (95.0% used)",
+      "evidence": {
+        "mem_total_bytes": 16777216000,
+        "mem_available_bytes": 838860800,
+        "mem_used_pct": 95.0,
+        "swap_used_pct": 75.0
+      },
+      "likely_causes": [
+        "Unbounded application heap or cache growth",
+        "Insufficient container or VM memory allocation relative to worker concurrency"
+      ],
+      "confidence": "high",
+      "recommendation": "Check process RSS growth using scripts/collect_process_metrics.py and verify cgroup memory.max limits."
+    },
+    {
+      "id": "SYS-MEM-002",
+      "category": "memory",
+      "severity": "high",
+      "classification": "measured",
+      "title": "Kernel OOM killer invocations recorded (oom_kill=3)",
+      "evidence": {
+        "vmstat_oom_kill": 3,
+        "pgmajfault": 18450
+      },
+      "likely_causes": [
+        "Host or cgroup memory exhaustion triggering Linux OOM killer"
+      ],
+      "confidence": "high",
+      "recommendation": "Inspect cgroup memory.events for oom_kill counters and set bounded heap limits on worker processes."
+    },
+    {
+      "id": "CGRP-CPU-001",
+      "category": "cgroup_cpu",
+      "severity": "high",
+      "classification": "measured",
+      "title": "Container CFS CPU throttling detected (35.0% of periods throttled)",
+      "evidence": {
+        "cpu_max_raw": "50000 100000",
+        "quota_us": 50000,
+        "period_us": 100000,
+        "effective_cpus": 0.5,
+        "nr_periods": 12000,
+        "nr_throttled": 4200,
+        "throttled_usec": 540000000,
+        "throttle_pct": 35.0
+      },
+      "likely_causes": [
+        "Multi-threaded application bursting above container CPU quota within 100ms period",
+        "Restrictive Kubernetes/Docker CPU limit relative to worker thread count"
+      ],
+      "confidence": "high",
+      "recommendation": "Increase container CPU limit or tune runtime worker threads (e.g., GOMAXPROCS, UV_THREADPOOL_SIZE) to match effective CPU quota."
+    },
+    {
+      "id": "CGRP-MEM-001",
+      "category": "cgroup_memory",
+      "severity": "critical",
+      "classification": "measured",
+      "title": "Cgroup OOM events recorded (oom_kill=2, oom=4)",
+      "evidence": {
+        "current_bytes": 966367641,
+        "max_bytes": 1073741824,
+        "utilization_pct": 90.0,
+        "events": {
+          "low": 0,
+          "high": 450,
+          "max": 82,
+          "oom": 4,
+          "oom_kill": 2
+        }
+      },
+      "likely_causes": [
+        "Container memory working set exceeded cgroup memory limit"
+      ],
+      "confidence": "high",
+      "recommendation": "Increase container memory limit or configure runtime heap bounds (e.g., NODE_OPTIONS=--max-old-space-size, GOMEMLIMIT) below cgroup memory ceiling."
+    },
+    {
+      "id": "CGRP-PSI-001",
+      "category": "cgroup_psi",
+      "severity": "high",
+      "classification": "measured",
+      "title": "Elevated per-cgroup Pressure Stall Information (memory full avg10=11.8%, io full avg10=31.4%)",
+      "evidence": {
+        "cpu": {
+          "some": {
+            "avg10": 38.5,
+            "avg60": 29.1,
+            "avg300": 18.0,
+            "total": 7400000.0
+          },
+          "full": {
+            "avg10": 21.2,
+            "avg60": 15.4,
+            "avg300": 9.1,
+            "total": 3900000.0
+          }
+        },
+        "memory": {
+          "some": {
+            "avg10": 24.0,
+            "avg60": 18.2,
+            "avg300": 9.5,
+            "total": 3100000.0
+          },
+          "full": {
+            "avg10": 11.8,
+            "avg60": 7.4,
+            "avg300": 3.2,
+            "total": 1450000.0
+          }
+        },
+        "io": {
+          "some": {
+            "avg10": 49.0,
+            "avg60": 35.0,
+            "avg300": 22.0,
+            "total": 9200000.0
+          },
+          "full": {
+            "avg10": 31.4,
+            "avg60": 24.1,
+            "avg300": 14.0,
+            "total": 6100000.0
+          }
+        }
+      },
+      "likely_causes": [
+        "Cgroup tasks stalled on direct memory reclaim or cgroup I/O throttling"
+      ],
+      "confidence": "high",
+      "recommendation": "Inspect cgroup memory.high/memory.max and io.max limits."
+    },
+    {
+      "id": "NET-TCP-001",
+      "category": "network",
+      "severity": "medium",
+      "classification": "measured",
+      "title": "High CLOSE_WAIT socket accumulation (65 sockets)",
+      "evidence": {
+        "close_wait_count": 65,
+        "state_counts": {
+          "ESTABLISHED": 0,
+          "SYN_SENT": 0,
+          "SYN_RECV": 0,
+          "FIN_WAIT1": 0,
+          "FIN_WAIT2": 0,
+          "TIME_WAIT": 0,
+          "CLOSE": 0,
+          "CLOSE_WAIT": 65,
+          "LAST_ACK": 0,
+          "LISTEN": 0,
+          "CLOSING": 0
+        }
+      },
+      "likely_causes": [
+        "Application failing to call close() on sockets after remote peer FIN disconnect",
+        "Worker thread starvation preventing socket cleanup"
+      ],
+      "confidence": "high",
+      "recommendation": "Audit application connection pool lifecycle and ensure HTTP/DB client connections are closed in finally/defer blocks."
+    },
+    {
+      "id": "NET-SNMP-RETRANS",
+      "category": "network_retransmissions",
+      "severity": "medium",
+      "classification": "measured",
+      "title": "Elevated TCP segment retransmission rate (2.3%: 18400/800000 segments)",
+      "evidence": {
+        "out_segs_cumulative": 800000,
+        "retrans_segs_cumulative": 18400,
+        "retrans_pct": 2.3,
+        "estab_resets": 185
+      },
+      "likely_causes": [
+        "Network congestion, NIC ring buffer drops, or cloud virtual switch bandwidth policing"
+      ],
+      "confidence": "high",
+      "recommendation": "Check interface tx_drop/rx_drop counters and TCP congestion control settings."
+    },
+    {
+      "id": "NET-SNMP-UDPBUF",
+      "category": "network_udp",
+      "severity": "medium",
+      "classification": "measured",
+      "title": "UDP socket receive buffer drops recorded (RcvbufErrors=24)",
+      "evidence": {
+        "udp_mib": {
+          "InDatagrams": 120000,
+          "NoPorts": 45,
+          "InErrors": 28,
+          "OutDatagrams": 118000,
+          "RcvbufErrors": 24,
+          "SndbufErrors": 0,
+          "InCsumErrors": 0,
+          "IgnoredMulti": 0,
+          "MemErrors": 0
+        }
+      },
+      "likely_causes": [
+        "net.core.rmem_max too small for burst UDP traffic (e.g., DNS/QUIC/StatsD)"
+      ],
+      "confidence": "high",
+      "recommendation": "Increase net.core.rmem_max or scale UDP reader threads."
+    },
+    {
+      "id": "NET-NETSTAT-LISTEN",
+      "category": "listen_backlog",
+      "severity": "high",
+      "classification": "measured",
+      "title": "TCP listen queue overflows detected (ListenOverflows=340, ListenDrops=340)",
+      "evidence": {
+        "ListenOverflows": 340,
+        "ListenDrops": 340,
+        "TCPSynRetrans": 290,
+        "TCPTimeouts": 190
+      },
+      "likely_causes": [
+        "Application accept() loop is stalled or net.core.somaxconn / net.ipv4.tcp_max_syn_backlog is undersized"
+      ],
+      "confidence": "high",
+      "recommendation": "Raise net.core.somaxconn and application listen() backlog parameter, and check worker CPU throttling."
+    },
+    {
+      "id": "NET-QUEUE-001",
+      "category": "network",
+      "severity": "medium",
+      "classification": "measured",
+      "title": "Detected 65 sockets with elevated Recv-Q or Send-Q buffers",
+      "evidence": {
+        "queued_sockets": [
+          {
+            "table": "tcp",
+            "local_address": "0100007F:1F90",
+            "state": "CLOSE_WAIT",
+            "tx_queue": 0,
+            "rx_queue": 8192
+          },
+          {
+            "table": "tcp",
+            "local_address": "0100007F:1F90",
+            "state": "CLOSE_WAIT",
+            "tx_queue": 0,
+            "rx_queue": 8192
+          },
+          {
+            "table": "tcp",
+            "local_address": "0100007F:1F90",
+            "state": "CLOSE_WAIT",
+            "tx_queue": 0,
+            "rx_queue": 8192
+          },
+          {
+            "table": "tcp",
+            "local_address": "0100007F:1F90",
+            "state": "CLOSE_WAIT",
+            "tx_queue": 0,
+            "rx_queue": 8192
+          },
+          {
+            "table": "tcp",
+            "local_address": "0100007F:1F90",
+            "state": "CLOSE_WAIT",
+            "tx_queue": 0,
+            "rx_queue": 8192
+          },
+          {
+            "table": "tcp",
+            "local_address": "0100007F:1F90",
+            "state": "CLOSE_WAIT",
+            "tx_queue": 0,
+            "rx_queue": 8192
+          },
+          {
+            "table": "tcp",
+            "local_address": "0100007F:1F90",
+            "state": "CLOSE_WAIT",
+            "tx_queue": 0,
+            "rx_queue": 8192
+          },
+          {
+            "table": "tcp",
+            "local_address": "0100007F:1F90",
+            "state": "CLOSE_WAIT",
+            "tx_queue": 0,
+            "rx_queue": 8192
+          },
+          {
+            "table": "tcp",
+            "local_address": "0100007F:1F90",
+            "state": "CLOSE_WAIT",
+            "tx_queue": 0,
+            "rx_queue": 8192
+          },
+          {
+            "table": "tcp",
+            "local_address": "0100007F:1F90",
+            "state": "CLOSE_WAIT",
+            "tx_queue": 0,
+            "rx_queue": 8192
+          }
+        ]
+      },
+      "likely_causes": [
+        "Slow application reader (high Recv-Q) or congested downstream receiver (high Send-Q)"
+      ],
+      "confidence": "high",
+      "recommendation": "Inspect stalled reader/writer processes holding queued sockets."
+    },
+    {
+      "id": "NET-IFACE-001",
+      "category": "network",
+      "severity": "medium",
+      "classification": "measured",
+      "title": "Network interface packet drops or errors detected (total=547)",
+      "evidence": {
+        "interfaces": {
+          "eth0": {
+            "rx_bytes": 99400000,
+            "rx_packets": 85000,
+            "rx_errs": 12,
+            "rx_drop": 450,
+            "tx_bytes": 88200000,
+            "tx_packets": 79000,
+            "tx_errs": 0,
+            "tx_drop": 85
+          }
+        }
+      },
+      "likely_causes": [
+        "Ring buffer exhaustion, NIC IRQ saturation, or virtual bridge policing"
+      ],
+      "confidence": "medium",
+      "recommendation": "Inspect per-interface rx_drop/tx_drop counts and verify ring buffer sizing."
+    },
+    {
+      "id": "PROC-STATE-001",
+      "category": "process",
+      "severity": "high",
+      "classification": "measured",
+      "title": "Process 4242 (order-worker) is in uninterruptible sleep (D state)",
+      "evidence": {
+        "pid": 4242,
+        "comm": "order-worker",
+        "state": "D",
+        "iowait_sum_ms": 42300.75
+      },
+      "likely_causes": [
+        "Blocked on synchronous disk I/O, NFS mount stall, or kernel mutex contention"
+      ],
+      "confidence": "high",
+      "recommendation": "Inspect block device latency with scripts/inspect_io.sh and check /proc/<pid>/sched iowait_sum."
+    },
+    {
+      "id": "PROC-SCHED-001",
+      "category": "scheduling",
+      "severity": "medium",
+      "classification": "measured",
+      "title": "Process 4242 (order-worker) exhibits CPU run-queue contention or involuntary preemption",
+      "evidence": {
+        "runqueue_wait_sum_ms": 18450.25,
+        "nr_migrations": 1840,
+        "voluntary_ctxt_switches": 142000,
+        "nonvoluntary_ctxt_switches": 89000
+      },
+      "likely_causes": [
+        "Thread count exceeds available CPU cores or cgroup CFS quota is throttling runnable threads"
+      ],
+      "confidence": "high",
+      "recommendation": "Compare process thread count against cgroup CPU quota using scripts/inspect_cgroups.py."
+    },
+    {
+      "id": "PROC-MEM-001",
+      "category": "process",
+      "severity": "medium",
+      "classification": "measured",
+      "title": "Process 4242 experiencing swap usage or major page faults",
+      "evidence": {
+        "pid": 4242,
+        "swap_bytes": 0,
+        "majflt": 1850,
+        "rss_bytes": 536870912
+      },
+      "likely_causes": [
+        "Working set exceeds available physical or cgroup memory"
+      ],
+      "confidence": "high",
+      "recommendation": "Tune process memory footprint or increase container memory.max allocation."
+    },
+    {
+      "id": "HYP-CGRP-QUOTA",
+      "category": "correlation",
+      "severity": "high",
+      "classification": "hypothesis",
+      "title": "Container CFS quota throttling is actively restricting application threads",
+      "evidence": {
+        "cgroup_throttle_pct": 35.0,
+        "host_idle_pct": 3.14
+      },
+      "likely_causes": [
+        "Container CPU quota (cpu.max / cfs_quota_us) is exhausted within 100ms scheduling periods"
+      ],
+      "confidence": "high",
+      "recommendation": "Raise container CPU limit or right-size worker thread pool count to match container effective CPUs."
+    }
+  ],
+  "metrics": {
+    "system": {
+      "metric_semantics": {
+        "cpu": "cumulative_since_boot",
+        "memory_and_scheduling": "instantaneous",
+        "vmstat_counters": "cumulative_since_boot",
+        "psi": "rolling_window_average_pct"
+      },
+      "cpu": {
+        "user_pct": 56.85,
+        "system_pct": 22.3,
+        "idle_pct": 3.14,
+        "iowait_pct": 17.59,
+        "steal_pct": 0.13,
+        "ctxt_per_sec": 0.0,
+        "semantics": "cumulative_since_boot"
+      },
+      "scheduling": {
+        "procs_running": 12,
+        "procs_blocked": 4,
+        "total_forks": 45210,
+        "loadavg": {
+          "load_1m": 14.25,
+          "load_5m": 11.8,
+          "load_15m": 9.45,
+          "scheduling_entities": "12/640"
+        }
+      },
+      "memory": {
+        "mem_total_bytes": 16777216000,
+        "mem_available_bytes": 838860800,
+        "mem_used_bytes": 15938355200,
+        "mem_used_pct": 95.0,
+        "swap_total_bytes": 4294967296,
+        "swap_used_bytes": 3221225472,
+        "swap_used_pct": 75.0,
+        "buffers_bytes": 65536000,
+        "cached_bytes": 419840000
+      },
+      "vmstat": {
+        "pgfault": 9502311,
+        "pgmajfault": 18450,
+        "pswpin": 41200,
+        "pswpout": 89300,
+        "oom_kill": 3
+      },
+      "psi": {
+        "cpu": {
+          "some": {
+            "avg10": 42.5,
+            "avg60": 35.1,
+            "avg300": 20.0,
+            "total": 9500000.0
+          }
+        },
+        "memory": {
+          "some": {
+            "avg10": 28.1,
+            "avg60": 19.2,
+            "avg300": 10.0,
+            "total": 4200000.0
+          },
+          "full": {
+            "avg10": 12.4,
+            "avg60": 8.1,
+            "avg300": 4.0,
+            "total": 1900000.0
+          }
+        },
+        "io": {
+          "some": {
+            "avg10": 55.0,
+            "avg60": 40.0,
+            "avg300": 25.0,
+            "total": 12500000.0
+          },
+          "full": {
+            "avg10": 38.2,
+            "avg60": 29.0,
+            "avg300": 15.0,
+            "total": 8400000.0
+          }
+        }
+      }
+    },
+    "cgroup": {
+      "metric_semantics": {
+        "memory_current_and_pids": "instantaneous",
+        "cpu_stat_and_memory_events": "cumulative_since_cgroup_creation",
+        "pressure_avg10_60_300": "rolling_window_average_pct"
+      },
+      "cgroup_version": "v2",
+      "cpu": {
+        "cpu_max_raw": "50000 100000",
+        "quota_us": 50000,
+        "period_us": 100000,
+        "effective_cpus": 0.5,
+        "nr_periods": 12000,
+        "nr_throttled": 4200,
+        "throttled_usec": 540000000,
+        "throttle_pct": 35.0
+      },
+      "memory": {
+        "current_bytes": 966367641,
+        "max_bytes": 1073741824,
+        "utilization_pct": 90.0,
+        "events": {
+          "low": 0,
+          "high": 450,
+          "max": 82,
+          "oom": 4,
+          "oom_kill": 2
+        }
+      },
+      "pids": {
+        "current": 128,
+        "max": 512
+      },
+      "pressure": {
+        "cpu": {
+          "some": {
+            "avg10": 38.5,
+            "avg60": 29.1,
+            "avg300": 18.0,
+            "total": 7400000.0
+          },
+          "full": {
+            "avg10": 21.2,
+            "avg60": 15.4,
+            "avg300": 9.1,
+            "total": 3900000.0
+          }
+        },
+        "memory": {
+          "some": {
+            "avg10": 24.0,
+            "avg60": 18.2,
+            "avg300": 9.5,
+            "total": 3100000.0
+          },
+          "full": {
+            "avg10": 11.8,
+            "avg60": 7.4,
+            "avg300": 3.2,
+            "total": 1450000.0
+          }
+        },
+        "io": {
+          "some": {
+            "avg10": 49.0,
+            "avg60": 35.0,
+            "avg300": 22.0,
+            "total": 9200000.0
+          },
+          "full": {
+            "avg10": 31.4,
+            "avg60": 24.1,
+            "avg300": 14.0,
+            "total": 6100000.0
+          }
+        }
+      }
+    },
+    "io": {},
+    "network": {
+      "metric_semantics": {
+        "tcp_state_counts_and_queues": "instantaneous",
+        "interfaces_snmp_and_netstat": "cumulative_since_boot"
+      },
+      "tcp_state_counts": {
+        "ESTABLISHED": 0,
+        "SYN_SENT": 0,
+        "SYN_RECV": 0,
+        "FIN_WAIT1": 0,
+        "FIN_WAIT2": 0,
+        "TIME_WAIT": 0,
+        "CLOSE": 0,
+        "CLOSE_WAIT": 65,
+        "LAST_ACK": 0,
+        "LISTEN": 0,
+        "CLOSING": 0
+      },
+      "queued_sockets": [
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        },
+        {
+          "table": "tcp",
+          "local_address": "0100007F:1F90",
+          "state": "CLOSE_WAIT",
+          "tx_queue": 0,
+          "rx_queue": 8192
+        }
+      ],
+      "interfaces": {
+        "eth0": {
+          "rx_bytes": 99400000,
+          "rx_packets": 85000,
+          "rx_errs": 12,
+          "rx_drop": 450,
+          "tx_bytes": 88200000,
+          "tx_packets": 79000,
+          "tx_errs": 0,
+          "tx_drop": 85
+        }
+      },
+      "snmp": {
+        "Ip": {
+          "Forwarding": 1,
+          "DefaultTTL": 64,
+          "InReceives": 950000,
+          "InHdrErrors": 0,
+          "InAddrErrors": 0,
+          "ForwDatagrams": 0,
+          "InUnknownProtos": 0,
+          "InDiscards": 0,
+          "InDelivers": 950000,
+          "OutRequests": 920000,
+          "OutDiscards": 0,
+          "OutNoRoutes": 0,
+          "ReasmTimeout": 0,
+          "ReasmReqds": 0,
+          "ReasmOKs": 0,
+          "ReasmFails": 0,
+          "FragOKs": 0,
+          "FragFails": 0,
+          "FragCreates": 0
+        },
+        "Tcp": {
+          "RtoAlgorithm": 1,
+          "RtoMin": 200,
+          "RtoMax": 120000,
+          "MaxConn": -1,
+          "ActiveOpens": 14200,
+          "PassiveOpens": 28500,
+          "AttemptFails": 410,
+          "EstabResets": 185,
+          "CurrEstab": 84,
+          "InSegs": 850000,
+          "OutSegs": 800000,
+          "RetransSegs": 18400,
+          "InErrs": 12,
+          "OutRsts": 390,
+          "InCsumErrors": 0
+        },
+        "Udp": {
+          "InDatagrams": 120000,
+          "NoPorts": 45,
+          "InErrors": 28,
+          "OutDatagrams": 118000,
+          "RcvbufErrors": 24,
+          "SndbufErrors": 0,
+          "InCsumErrors": 0,
+          "IgnoredMulti": 0,
+          "MemErrors": 0
+        }
+      },
+      "netstat": {
+        "TcpExt": {
+          "SyncookiesSent": 0,
+          "SyncookiesRecv": 0,
+          "SyncookiesFailed": 0,
+          "EmbryonicRsts": 0,
+          "PruneCalled": 0,
+          "RcvPruned": 0,
+          "OfoPruned": 0,
+          "OutOfWindowIcmps": 0,
+          "LockDroppedIcmps": 0,
+          "ArpFilter": 0,
+          "TW": 1200,
+          "TWRecycled": 0,
+          "TWKilled": 0,
+          "PAWSPassive": 0,
+          "PAWSActive": 0,
+          "PAWSEstab": 0,
+          "DelayedACKs": 450,
+          "DelayedACKLocked": 12,
+          "DelayedACKLost": 8,
+          "ListenOverflows": 340,
+          "ListenDrops": 340,
+          "TCPPrequeued": 0,
+          "TCPDirectCopyFromBacklog": 0,
+          "TCPDirectCopyFromPrequeue": 0,
+          "TCPPrequeueDropped": 0,
+          "TCPHPHits": 0,
+          "TCPHPHitsToUser": 0,
+          "TCPPureAcks": 0,
+          "TCPHPAcks": 0,
+          "TCPRenoRecovery": 0,
+          "TCPSackRecovery": 0,
+          "TCPSACKReneging": 0,
+          "TCPFACKReorder": 0,
+          "TCPSACKReorder": 0,
+          "TCPRenoReorder": 0,
+          "TCPTSReorder": 0,
+          "TCPFullUndo": 0,
+          "TCPPartialUndo": 0,
+          "TCPDSACKUndo": 0,
+          "TCPLossUndo": 0,
+          "TCPLostRetransmit": 0,
+          "TCPRenoFailures": 0,
+          "TCPSackFailures": 0,
+          "TCPLossFailures": 0,
+          "TCPFastRetrans": 420,
+          "TCPForwardRetrans": 80,
+          "TCPSlowStartRetrans": 35,
+          "TCPTimeouts": 190,
+          "TCPLossProbes": 65,
+          "TCPLossProbeRecovery": 20,
+          "TCPRenoRecoveryFail": 0,
+          "TCPSackRecoveryFail": 0,
+          "TCPSchedulerFailed": 0,
+          "TCPRcvCollapsed": 0,
+          "TCPDSACKOldSent": 0,
+          "TCPDSACKOfoSent": 0,
+          "TCPDSACKRecv": 0,
+          "TCPDSACKOfoRecv": 0,
+          "TCPAbortOnData": 0,
+          "TCPAbortOnClose": 0,
+          "TCPAbortOnMemory": 0,
+          "TCPAbortOnTimeout": 45,
+          "TCPAbortOnLinger": 0,
+          "TCPAbortFailed": 0,
+          "TCPMemoryPressures": 2,
+          "TCPSACKDiscard": 0,
+          "TCPDSACKIgnoredOld": 0,
+          "TCPDSACKIgnoredNoInfo": 0,
+          "TCPSpuriousRTOs": 0,
+          "TCPMD5NotFound": 0,
+          "TCPMD5Unexpected": 0,
+          "TCPMD5Failure": 0,
+          "TCPSackShifted": 0,
+          "TCPSackMerged": 0,
+          "TCPSackShiftFallback": 0,
+          "TCPBacklogDrop": 0,
+          "PFMemallocDrop": 0,
+          "TTPAO": 0,
+          "TCPSynRetrans": 290
+        }
+      },
+      "tcp_retransmission_pct": 2.3
+    },
+    "process": {
+      "metric_semantics": {
+        "cpu_pct": "cumulative_snapshot",
+        "memory_rss_and_fds": "instantaneous",
+        "io_and_context_switches": "cumulative_since_process_start"
+      },
+      "pid": 4242,
+      "comm": "order-worker",
+      "state": "D",
+      "ppid": 1,
+      "threads": 32,
+      "cpu": {
+        "user_pct": 0.0,
+        "system_pct": 0.0,
+        "total_pct": 0.0,
+        "cumulative_utime_ticks": 45000,
+        "cumulative_stime_ticks": 22000
+      },
+      "memory": {
+        "rss_bytes": 536870912,
+        "vsize_bytes": 2147483648,
+        "swap_bytes": 0,
+        "minflt_cumulative": 12000,
+        "majflt_cumulative": 1850
+      },
+      "context_switches": {
+        "voluntary_cumulative": 142000,
+        "nonvoluntary_cumulative": 89000
+      },
+      "scheduler": {
+        "vruntime": 41209845.5,
+        "sum_exec_runtime_ms": 670000.0,
+        "nr_migrations": 1840,
+        "nr_switches": 231000,
+        "nr_voluntary_switches": 142000,
+        "nr_involuntary_switches": 89000,
+        "runqueue_wait_sum_ms": 18450.25,
+        "iowait_sum_ms": 42300.75
+      },
+      "open_fds": 0,
+      "io_cumulative": {
+        "rchar": 980000000,
+        "wchar": 640000000,
+        "syscr": 450000,
+        "syscw": 390000,
+        "read_bytes": 512000000,
+        "write_bytes": 498000000,
+        "cancelled_write_bytes": 0
+      }
+    }
+  },
+  "warnings": [],
+  "recommendations": [
+    "Identify top CPU threads via collect_process_metrics.py and verify whether CPU time is user-space or kernel-space.",
+    "Execute scripts/inspect_io.sh to correlate iowait with specific block devices.",
+    "Audit high-RSS processes and check cgroup memory events for OOM risk.",
+    "Correlate /proc/vmstat oom_kill with container cgroup memory.events.",
+    "Align application thread pool size with effective cgroup CPU quota or raise CPU limits.",
+    "Set language runtime memory limits to 80-85% of container memory limit to prevent kernel OOM kills.",
+    "Investigate cgroup-level PSI stalls in memory.pressure and io.pressure.",
+    "Fix application socket leak indicated by elevated CLOSE_WAIT connections.",
+    "Investigate network path packet loss driving TCP retransmissions.",
+    "Remediate TCP accept queue saturation indicated by TcpExt.ListenOverflows.",
+    "Check backing storage latency for D-state process.",
+    "Right-size application worker threads to reduce run-queue wait time and involuntary context switches."
+  ],
+  "errors": [
+    "{\"status\": \"error\", \"timestamp\": \"2026-11-17T16:16:25.088706+00:00\", \"platform\": {}, \"tool_versions\": {}, \"findings\": [], \"metrics\": {}, \"warnings\": [], \"recommendations\": [], \"errors\": [\"Proc root not found: tests/fixtures/saturated_node/proc\"]}\n"
+  ]
+}

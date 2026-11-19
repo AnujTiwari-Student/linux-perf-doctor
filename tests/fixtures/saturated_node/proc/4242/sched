@@ -1,0 +1,11 @@
+order-worker (4242, #threads: 32)
+-------------------------------------------------------------------
+se.exec_start                                :       98451234.125000
+se.vruntime                                  :       41209845.500000
+se.sum_exec_runtime                          :         670000.000000
+se.nr_migrations                             :           1840
+nr_switches                                  :         231000
+nr_voluntary_switches                        :         142000
+nr_involuntary_switches                      :          89000
+se.statistics.wait_sum                       :          18450.250000
+se.statistics.iowait_sum                     :          42300.750000
