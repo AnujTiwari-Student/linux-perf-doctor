@@ -22,6 +22,32 @@ ALLOWED_EXECUTABLES = frozenset({
 })
 _CHILD_ENV_ALLOWLIST = ("PATH", "HOME", "LANG", "LC_ALL", "LC_CTYPE", "TZ", "TMPDIR", "TERM")
 
+_SKILL_SCRIPT_DIR = Path(__file__).resolve().parent
+_SKILL_SHELL_SCRIPTS = frozenset({"check_perf_capabilities.sh", "inspect_io.sh", "profile_process.sh"})
+
+
+def _skill_script_launcher(resolved_exe: str) -> list:
+    """Return the shell interpreter prefix for a bundled skill script that lost its executable bit.
+
+    Some installers do not preserve file modes. Only this skill's own reviewed shell scripts,
+    stored as regular non-symlink files inside its scripts directory, are launched this way.
+    """
+    try:
+        target = Path(resolved_exe)
+        if (
+            target.name in _SKILL_SHELL_SCRIPTS
+            and not target.is_symlink()
+            and target.is_file()
+            and target.resolve().parent == _SKILL_SCRIPT_DIR
+            and not os.access(str(target), os.X_OK)
+        ):
+            interpreter = shutil.which("bash")
+            if interpreter:
+                return [interpreter]
+    except OSError:
+        pass
+    return []
+
 
 def build_child_env(source_env: Optional[Mapping[str, str]] = None) -> Dict[str, str]:
     """Build a minimal child-process environment from explicitly allowlisted variable names."""
@@ -326,7 +352,7 @@ def run_bounded_command(
             "child_pid": None,
         }
 
-    safe_cmd = [resolved_exe] + cmd[1:]
+    safe_cmd = _skill_script_launcher(resolved_exe) + [resolved_exe] + cmd[1:]
     safe_env = env if env is not None else build_child_env()
 
     try:

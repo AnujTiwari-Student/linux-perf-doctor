@@ -15,4 +15,4 @@
 ## Workflow 3: High System CPU (`sy`) and Context Switch Storm
 1. Confirm `system_pct > 25%` and `ctxt_per_sec` spike via `scripts/collect_system_metrics.py`.
 2. Check `voluntary_ctxt_switches` vs `nonvoluntary_ctxt_switches` on the target PID.
-3. With explicit user authorization, run `./scripts/profile_process.sh --pid <PID> --mode strace-summary --duration 3 --enable-active-profiling` to pinpoint dominant syscalls (`futex`, `read`, `write`, `epoll_wait`).
+3. With explicit user authorization, run `bash scripts/profile_process.sh --pid <PID> --mode strace-summary --duration 3 --enable-active-profiling` to pinpoint dominant syscalls (`futex`, `read`, `write`, `epoll_wait`).
