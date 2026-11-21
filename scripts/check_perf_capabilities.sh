@@ -26,11 +26,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-export LPD_PROC_ROOT="$PROC_ROOT"
-export LPD_PRETTY="$PRETTY"
-export LPD_SCRIPT_DIR="$SCRIPT_DIR"
-
-python3 - <<'PY'
+python3 - "$SCRIPT_DIR" "$PROC_ROOT" "$PRETTY" <<'PY'
 import json
 import os
 import platform
@@ -39,11 +35,11 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-sys.path.insert(0, os.environ["LPD_SCRIPT_DIR"])
+sys.path.insert(0, sys.argv[1])
 from common import decode_cap_eff_hex, run_bounded_command
 
-proc_root = Path(os.environ.get("LPD_PROC_ROOT", "/proc"))
-pretty = os.environ.get("LPD_PRETTY") == "1"
+proc_root = Path(sys.argv[2] if len(sys.argv) > 2 and sys.argv[2] else "/proc")
+pretty = (sys.argv[3] == "1") if len(sys.argv) > 3 else False
 
 tools = [
     "perf", "strace", "ss", "iostat", "vmstat", "pidstat",

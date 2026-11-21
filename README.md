@@ -116,7 +116,7 @@ See [`examples/sample-saturated-report.md`](examples/sample-saturated-report.md)
 
 ## 12. Security and Safety Approach
 - Read-only passive inspection by default.
-- Never invokes `sudo` or modifies kernel parameters.
+- Never invokes privilege-escalation wrappers or modifies kernel parameters.
 - Never reads `/proc/<pid>/environ` or prints secrets.
 - Active profilers (`strace`, `perf`) are blocked unless `--enable-active-profiling` is explicitly passed. See [`docs/SECURITY.md`](docs/SECURITY.md).
 

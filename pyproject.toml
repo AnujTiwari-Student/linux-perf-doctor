@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "linux-perf-doctor"
-version = "1.0.0"
+version = "1.0.1"
 description = "Autonomous eBPF, Syscall, Process, I/O, and Container Bottleneck Profiler Agent Skill"
 readme = "README.md"
 license = {text = "MIT"}

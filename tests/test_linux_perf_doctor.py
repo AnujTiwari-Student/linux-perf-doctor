@@ -1,5 +1,5 @@
 import json
-import subprocess
+import os
 import sys
 import unittest
 from pathlib import Path
@@ -29,9 +29,13 @@ class TestLinuxPerfDoctor(unittest.TestCase):
         self.assertEqual(errs, [], f"JSON Schema validation errors: {errs}")
 
     def test_capabilities_script_json_schema_and_bitmask(self):
-        proc = subprocess.run([str(SCRIPTS_DIR / "check_perf_capabilities.sh")], capture_output=True, text=True, timeout=10)
-        self.assertEqual(proc.returncode, 0)
-        data = json.loads(proc.stdout)
+        proc = run_bounded_command(
+            [str(SCRIPTS_DIR / "check_perf_capabilities.sh")],
+            timeout_sec=10.0,
+            allowed_executables={"check_perf_capabilities.sh"},
+        )
+        self.assertEqual(proc["returncode"], 0)
+        data = json.loads(proc["stdout"])
         self.assertValidSchema(data)
         self.assertIn("capabilities", data["metrics"])
         self.assertIn("CAP_PERFMON", data["metrics"]["capabilities"]["capabilities"])
@@ -49,12 +53,17 @@ class TestLinuxPerfDoctor(unittest.TestCase):
         self.assertTrue(caps["CAP_BPF"])
         self.assertFalse(caps["CAP_SYS_ADMIN"])
 
-    def test_bounded_subprocess_truncation_and_sudo_rejection(self):
-        res_sudo = run_bounded_command(["sudo", "id"])
-        self.assertFalse(res_sudo["ok"])
-        self.assertIn("privilege escalation", res_sudo["stderr"])
+    def test_bounded_subprocess_truncation_and_allowlist_rejection(self):
+        res_blocked = run_bounded_command(["escalation-wrapper", "id"])
+        self.assertFalse(res_blocked["ok"])
+        self.assertIn("non-allowlisted executable", res_blocked["stderr"])
+        self.assertEqual(res_blocked["terminated_reason"], "blocked_executable")
 
-        res_trunc = run_bounded_command([sys.executable, "-c", "print('A' * 10000)"], max_bytes=512)
+        res_trunc = run_bounded_command(
+            [sys.executable, "-c", "print('A' * 10000)"],
+            max_bytes=512,
+            allowed_executables={os.path.basename(sys.executable)},
+        )
         self.assertTrue(res_trunc["ok"])
         self.assertTrue(res_trunc["truncated"])
         self.assertEqual(len(res_trunc["stdout"]), 512)
@@ -117,24 +126,26 @@ class TestLinuxPerfDoctor(unittest.TestCase):
         self.assertEqual(res["metrics"]["netstat"]["TcpExt"]["ListenOverflows"], 340)
 
     def test_inspect_io_script_cumulative_and_interval_modes(self):
-        proc = subprocess.run(
+        proc = run_bounded_command(
             [str(SCRIPTS_DIR / "inspect_io.sh"), "--proc-root", str(FIXTURE_DIR / "proc"), "--interval", "0.05"],
-            capture_output=True, text=True, timeout=10
+            timeout_sec=10.0,
+            allowed_executables={"inspect_io.sh"},
         )
-        self.assertEqual(proc.returncode, 0)
-        data = json.loads(proc.stdout)
+        self.assertEqual(proc["returncode"], 0)
+        data = json.loads(proc["stdout"])
         self.assertValidSchema(data)
         self.assertEqual(data["status"], "warning")
         self.assertEqual(data["metrics"]["metric_semantics"]["interval_delta"], "interval_derived")
         self.assertIn("interval_delta", data["metrics"]["block_devices"][0])
 
     def test_active_profiling_requires_opt_in_and_returns_valid_error_schema(self):
-        proc = subprocess.run(
+        proc = run_bounded_command(
             [str(SCRIPTS_DIR / "profile_process.sh"), "--pid", "1", "--mode", "strace-summary"],
-            capture_output=True, text=True, timeout=10
+            timeout_sec=10.0,
+            allowed_executables={"profile_process.sh"},
         )
-        self.assertEqual(proc.returncode, 2)
-        err = json.loads(proc.stderr)
+        self.assertEqual(proc["returncode"], 2)
+        err = json.loads(proc["stderr"])
         self.assertValidSchema(err)
         self.assertEqual(err["status"], "error")
 
@@ -143,12 +154,13 @@ class TestLinuxPerfDoctor(unittest.TestCase):
         self.assertValidSchema(res)
         self.assertEqual(res["status"], "error")
 
-        proc_bad = subprocess.run(
+        proc_bad = run_bounded_command(
             [sys.executable, str(SCRIPTS_DIR / "collect_system_metrics.py"), "--interval", "999"],
-            capture_output=True, text=True, timeout=5
+            timeout_sec=5.0,
+            allowed_executables={os.path.basename(sys.executable)},
         )
-        self.assertEqual(proc_bad.returncode, 2)
-        self.assertValidSchema(json.loads(proc_bad.stderr))
+        self.assertEqual(proc_bad["returncode"], 2)
+        self.assertValidSchema(json.loads(proc_bad["stderr"]))
 
     def test_unified_report_correlation_hypothesis_and_schema(self):
         rep = generate_report.build_unified_report(FIXTURE_DIR / "proc", FIXTURE_DIR / "cgroup", 4242, interval=0.0)
@@ -167,6 +179,7 @@ class TestLinuxPerfDoctor(unittest.TestCase):
             [sys.executable, "-c", "import time\nwhile True:\n    print('X' * 4096, flush=True)"],
             timeout_sec=5.0,
             max_bytes=8192,
+            allowed_executables={os.path.basename(sys.executable)},
         )
         self.assertTrue(res["ok"])
         self.assertTrue(res["truncated"])
@@ -178,10 +191,12 @@ class TestLinuxPerfDoctor(unittest.TestCase):
             _os.kill(res["child_pid"], 0)
 
     def test_streaming_bounded_subprocess_large_stderr_and_simultaneous_io(self):
+        py_allow = {os.path.basename(sys.executable)}
         res_err = run_bounded_command(
             [sys.executable, "-c", "import sys\nfor _ in range(500):\n    sys.stderr.write('E' * 512)\n    sys.stderr.flush()"],
             timeout_sec=5.0,
             max_bytes=4096,
+            allowed_executables=py_allow,
         )
         self.assertTrue(res_err["truncated"])
         self.assertTrue(res_err["stderr_truncated"])
@@ -191,6 +206,7 @@ class TestLinuxPerfDoctor(unittest.TestCase):
             [sys.executable, "-c", "import sys\nfor _ in range(100):\n    sys.stdout.write('O' * 200)\n    sys.stderr.write('E' * 200)\n    sys.stdout.flush()\n    sys.stderr.flush()"],
             timeout_sec=5.0,
             max_bytes=4096,
+            allowed_executables=py_allow,
         )
         self.assertTrue(res_both["truncated"])
         self.assertLessEqual(len(res_both["stdout"].encode("utf-8")), 4096)
@@ -198,10 +214,12 @@ class TestLinuxPerfDoctor(unittest.TestCase):
 
     def test_streaming_bounded_subprocess_timeout_missing_exec_and_unsafe_args(self):
         import os as _os
+        py_allow = {os.path.basename(sys.executable)}
         res_to = run_bounded_command(
             [sys.executable, "-c", "import time; time.sleep(10)"],
             timeout_sec=0.25,
             max_bytes=4096,
+            allowed_executables=py_allow,
         )
         self.assertFalse(res_to["ok"])
         self.assertTrue(res_to["timed_out"])
@@ -210,19 +228,22 @@ class TestLinuxPerfDoctor(unittest.TestCase):
         with self.assertRaises(ProcessLookupError):
             _os.kill(res_to["child_pid"], 0)
 
-        res_missing = run_bounded_command(["/nonexistent_binary_xyz_12345"])
+        res_missing = run_bounded_command(
+            ["/nonexistent_binary_xyz_12345"],
+            allowed_executables={"nonexistent_binary_xyz_12345"},
+        )
         self.assertFalse(res_missing["ok"])
         self.assertEqual(res_missing["returncode"], 127)
         self.assertEqual(res_missing["terminated_reason"], "executable_not_found")
 
-        res_unsafe = run_bounded_command(["python3", "arg_with_\x00_null"])
+        res_unsafe = run_bounded_command(["perf", "arg_with_\x00_null"])
         self.assertFalse(res_unsafe["ok"])
         self.assertEqual(res_unsafe["terminated_reason"], "invalid_arguments")
 
-        for priv_bin in ("sudo", "su", "pkexec"):
-            res_priv = run_bounded_command([priv_bin, "id"])
-            self.assertFalse(res_priv["ok"])
-            self.assertEqual(res_priv["terminated_reason"], "blocked_privilege_escalation")
+        for bad_bin in ("evil-binary", "escalation-wrapper", "arbitrary-tool"):
+            res_blocked = run_bounded_command([bad_bin, "id"])
+            self.assertFalse(res_blocked["ok"])
+            self.assertEqual(res_blocked["terminated_reason"], "blocked_executable")
 
 
 
@@ -287,7 +308,7 @@ class TestLinuxPerfDoctor(unittest.TestCase):
         with _tempfile.TemporaryDirectory() as tmpdir:
             marker_path = Path(tmpdir) / "grandchild_limit.pid"
             script = (
-                "import os, signal, subprocess, sys, time\n"
+                "import os, signal, sys, time\n"
                 "marker_str = sys.argv[1]\n"
                 "tmp_str = marker_str + '.tmp'\n"
                 "if hasattr(os, 'fork'):\n"
@@ -304,12 +325,7 @@ class TestLinuxPerfDoctor(unittest.TestCase):
                 "    os.read(r_fd, 16)\n"
                 "    os.close(r_fd)\n"
                 "    gpid = pid\n"
-                "else:\n"
-                "    child = subprocess.Popen([sys.executable, '-c', "
-                "'import signal, sys, time; signal.signal(signal.SIGTERM, signal.SIG_IGN); sys.stdout.write(\"READY\\n\"); sys.stdout.flush(); time.sleep(60)'], "
-                "stdout=subprocess.PIPE, text=True)\n"
-                "    child.stdout.readline()\n"
-                "    gpid = child.pid\n"
+
                 "with open(tmp_str, 'w', encoding='utf-8') as f:\n"
                 "    f.write(f'{gpid}\\n')\n"
                 "    f.flush()\n"
@@ -330,6 +346,7 @@ class TestLinuxPerfDoctor(unittest.TestCase):
                     timeout_sec=5.0,
                     max_bytes=4096,
                     ready_file=marker_path,
+                    allowed_executables={_os.path.basename(sys.executable)},
                 )
                 if marker_path.exists():
                     grandchild_pid = int(marker_path.read_text(encoding="utf-8").strip())
@@ -355,7 +372,7 @@ class TestLinuxPerfDoctor(unittest.TestCase):
         with _tempfile.TemporaryDirectory() as tmpdir:
             marker_path = Path(tmpdir) / "grandchild_timeout.pid"
             script = (
-                "import os, signal, subprocess, sys, time\n"
+                "import os, signal, sys, time\n"
                 "marker_str = sys.argv[1]\n"
                 "tmp_str = marker_str + '.tmp'\n"
                 "if hasattr(os, 'fork'):\n"
@@ -372,12 +389,7 @@ class TestLinuxPerfDoctor(unittest.TestCase):
                 "    os.read(r_fd, 16)\n"
                 "    os.close(r_fd)\n"
                 "    gpid = pid\n"
-                "else:\n"
-                "    child = subprocess.Popen([sys.executable, '-c', "
-                "'import signal, sys, time; signal.signal(signal.SIGTERM, signal.SIG_IGN); sys.stdout.write(\"READY\\n\"); sys.stdout.flush(); time.sleep(60)'], "
-                "stdout=subprocess.PIPE, text=True)\n"
-                "    child.stdout.readline()\n"
-                "    gpid = child.pid\n"
+
                 "with open(tmp_str, 'w', encoding='utf-8') as f:\n"
                 "    f.write(f'{gpid}\\n')\n"
                 "    f.flush()\n"
@@ -395,6 +407,7 @@ class TestLinuxPerfDoctor(unittest.TestCase):
                     max_bytes=4096,
                     ready_file=marker_path,
                     startup_timeout_sec=10.0,
+                    allowed_executables={_os.path.basename(sys.executable)},
                 )
                 if marker_path.exists():
                     grandchild_pid = int(marker_path.read_text(encoding="utf-8").strip())
@@ -454,6 +467,7 @@ class TestLinuxPerfDoctor(unittest.TestCase):
                     max_bytes=4096,
                     ready_file=marker_path,
                     startup_timeout_sec=10.0,
+                    allowed_executables={_os.path.basename(sys.executable)},
                 )
                 if marker_path.exists():
                     grandchild_pid = int(marker_path.read_text(encoding="utf-8").strip())
@@ -487,6 +501,15 @@ class TestLinuxPerfDoctor(unittest.TestCase):
         scrubbed_rep = scrub_object_secrets(rep)
         md = generate_report.render_markdown(scrubbed_rep)
         self.assertNotIn("multiword secret token", md)
+
+    def test_security_allowlist_and_minimal_child_env(self):
+        from common import build_child_env
+        res = run_bounded_command(["sh", "-c", "echo blocked"])
+        self.assertFalse(res["ok"])
+        self.assertEqual(res["terminated_reason"], "blocked_executable")
+        env = build_child_env(source_env={"PATH": "/usr/bin", "LANG": "C", "AWS_SECRET_ACCESS_KEY": "secret"})
+        self.assertEqual(env, {"PATH": "/usr/bin", "LANG": "C"})
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -41,14 +41,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-export LPD_SCRIPT_DIR="$SCRIPT_DIR"
-export LPD_PID="$PID"
-export LPD_MODE="$MODE"
-export LPD_DURATION="$DURATION"
-export LPD_OPT_IN="$OPT_IN"
-export LPD_PRETTY="$PRETTY"
-
-python3 - <<'PY'
+python3 - "$SCRIPT_DIR" "$PID" "$MODE" "$DURATION" "$OPT_IN" "$PRETTY" <<'PY'
 import json
 import os
 import platform
@@ -57,14 +50,14 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-sys.path.insert(0, os.environ["LPD_SCRIPT_DIR"])
+sys.path.insert(0, sys.argv[1])
 from common import run_bounded_command, scrub_object_secrets
 
-pid_str = os.environ.get("LPD_PID", "")
-mode = os.environ.get("LPD_MODE", "passive-summary")
-duration_str = os.environ.get("LPD_DURATION", "2")
-opt_in = os.environ.get("LPD_OPT_IN") == "1"
-pretty = os.environ.get("LPD_PRETTY") == "1"
+pid_str = sys.argv[2] if len(sys.argv) > 2 else ""
+mode = sys.argv[3] if len(sys.argv) > 3 and sys.argv[3] else "passive-summary"
+duration_str = sys.argv[4] if len(sys.argv) > 4 and sys.argv[4] else "2"
+opt_in = (sys.argv[5] == "1") if len(sys.argv) > 5 else False
+pretty = (sys.argv[6] == "1") if len(sys.argv) > 6 else False
 
 def emit_error(msg: str, code: int):
     payload = {
