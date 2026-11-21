@@ -29,7 +29,7 @@ state.
 
 ### 1.2 No Automatic Privilege Escalation
 
-The scripts do not automatically invoke `sudo`, `su`, `pkexec`, or `doas`.
+The scripts do not automatically invoke privilege-escalation wrappers.
 
 The shared subprocess execution helper also rejects these privilege-escalation
 executables.
@@ -89,7 +89,7 @@ External commands are executed through the shared helper in
 The helper applies the following controls:
 
 - Commands are supplied as argument arrays rather than shell command strings.
-- `subprocess.Popen` is invoked with `shell=False`.
+- External processes are launched from an argument list with `shell=False`.
 - Empty arguments, invalid argument types, and NUL-containing arguments
   are rejected.
 - Known privilege-escalation executables are blocked.

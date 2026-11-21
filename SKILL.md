@@ -4,7 +4,7 @@ description: Diagnose Linux CPU saturation, memory leaks, OOM kills, disk I/O bo
 license: MIT
 compatibility: Linux hosts and containers with Python 3.8+ and standard /proc and /sys filesystems. Optional tools include perf, strace, ss, iostat, vmstat, pidstat, and bpftool.
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   category: systems-performance
 ---
 
@@ -24,7 +24,7 @@ Autonomous eBPF, syscall, process, I/O, and container bottleneck profiler that d
 ## Safety and Operating Principles
 
 1. Default to read-only passive telemetry collection (`/proc`, `/sys`, cgroup filesystems, `ss`, `vmstat`, `iostat`).
-2. Never invoke `sudo` automatically or escalate privileges without user execution.
+2. Never invoke privilege-escalation wrappers automatically or escalate privileges without user execution.
 3. Keep active profiling (`scripts/profile_process.sh` using `perf` or `strace`) strictly opt-in via `--enable-active-profiling` because attaching tracers can add latency or pause target threads.
 4. Bound all sampling windows with `--interval` and `--duration` limits (default 1 second, max 60 seconds).
 5. Separate measured facts (directly observed counters and ratios) from diagnostic hypotheses (inferred application-level root causes).

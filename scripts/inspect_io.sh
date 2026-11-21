@@ -30,11 +30,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-export LPD_PROC_ROOT="$PROC_ROOT"
-export LPD_INTERVAL="$INTERVAL"
-export LPD_PRETTY="$PRETTY"
-
-python3 - <<'PY'
+python3 - "$PROC_ROOT" "$INTERVAL" "$PRETTY" <<'PY'
 import json
 import os
 import platform
@@ -44,10 +40,10 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-proc_root = Path(os.environ.get("LPD_PROC_ROOT", "/proc"))
-pretty = os.environ.get("LPD_PRETTY") == "1"
+proc_root = Path(sys.argv[1] if len(sys.argv) > 1 and sys.argv[1] else "/proc")
+pretty = (sys.argv[3] == "1") if len(sys.argv) > 3 else False
 try:
-    interval = float(os.environ.get("LPD_INTERVAL", "0"))
+    interval = float(sys.argv[2] if len(sys.argv) > 2 and sys.argv[2] else "0")
 except ValueError:
     interval = -1.0
 
