@@ -27,8 +27,8 @@ npx skills add AnujTiwari-Student/linux-perf-doctor@v1.0.0 --skill linux-perf-do
 Alternatively, clone the repository and install from its root directory:
 
 ```bash
-git clone https://github.com/AnujTiwari-Student/linux-perf-doctor.git
-cd linux-perf-doctor
+# Download the source from GitHub (Code > Download ZIP) and extract it
+cd <extracted-directory>
 npx skills add . --skill linux-perf-doctor
 ```
 
