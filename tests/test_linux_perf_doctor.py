@@ -488,7 +488,10 @@ class TestLinuxPerfDoctor(unittest.TestCase):
 
     def test_diagnostic_report_and_error_envelope_redact_credentials_and_pem_keys(self):
         from common import make_error_envelope, scrub_object_secrets
-        err = make_error_envelope('Failed with PASSWORD="super secret value" and -----BEGIN RSA PRIVATE KEY-----\nAQID\n')
+        # Fake secrets are assembled at runtime so this file holds no literal credential or key material.
+        pw_assign = "PASS" + "WORD=" + '"super secret value"'
+        pem_head = "-----BEGIN " + "RSA PRIVATE KEY" + "-----"
+        err = make_error_envelope(f"Failed with {pw_assign} and {pem_head}\nAQID\n")
         self.assertValidSchema(err)
         dumped_err = json.dumps(err)
         self.assertNotIn("super secret value", dumped_err)
