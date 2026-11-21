@@ -36,7 +36,7 @@ Autonomous eBPF, syscall, process, I/O, and container bottleneck profiler that d
 Run the capability detector first to see which tools (`perf`, `strace`, `ss`, `iostat`, `vmstat`, `pidstat`, `bpftool`), kernel interfaces (`/proc/pressure`, cgroup v2), and permission levels (`perf_event_paranoid`, `ptrace_scope`) are available:
 
 ```bash
-./scripts/check_perf_capabilities.sh --pretty
+bash scripts/check_perf_capabilities.sh --pretty
 ```
 
 ### Step 2: Collect System, Cgroup, I/O, and Network Baselines
@@ -46,7 +46,7 @@ Collect passive read-only telemetry across the host or container:
 ```bash
 python3 scripts/collect_system_metrics.py --interval 0.2 --samples 2 --pretty
 python3 scripts/inspect_cgroups.py --cgroup-root /sys/fs/cgroup --pretty
-./scripts/inspect_io.sh --pretty
+bash scripts/inspect_io.sh --pretty
 python3 scripts/inspect_network.py --pretty
 ```
 
@@ -72,8 +72,8 @@ python3 scripts/generate_report.py --pid <PID> --format json --output report.jso
 If passive telemetry shows high system CPU (`sy`) or high voluntary/involuntary context switches and the user explicitly consents to active profiling, run `scripts/profile_process.sh`:
 
 ```bash
-./scripts/profile_process.sh --pid <PID> --mode strace-summary --duration 3 --enable-active-profiling
-./scripts/profile_process.sh --pid <PID> --mode perf-stat --duration 3 --enable-active-profiling
+bash scripts/profile_process.sh --pid <PID> --mode strace-summary --duration 3 --enable-active-profiling
+bash scripts/profile_process.sh --pid <PID> --mode perf-stat --duration 3 --enable-active-profiling
 ```
 
 ## Interpreting Findings

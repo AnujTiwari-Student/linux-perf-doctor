@@ -30,7 +30,7 @@ See `examples/sample-saturated-report.json` and `examples/sample-saturated-repor
 To record a reproducible terminal walkthrough using `asciinema`:
 ```bash
 asciinema rec -i 1.5 demo-linux-perf-doctor.cast
-./scripts/check_perf_capabilities.sh --pretty
+bash scripts/check_perf_capabilities.sh --pretty
 python3 scripts/generate_report.py --proc-root tests/fixtures/saturated_node/proc --cgroup-root tests/fixtures/saturated_node/cgroup --pid 4242 --interval 0 --format markdown
 exit
 ```

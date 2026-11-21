@@ -99,7 +99,7 @@ Ask your AI agent:
 ## 10. Script Examples
 ```bash
 # 1. Check host capabilities and kernel guards
-./scripts/check_perf_capabilities.sh --pretty
+bash scripts/check_perf_capabilities.sh --pretty
 
 # 2. Collect host system metrics across two 200ms intervals
 python3 scripts/collect_system_metrics.py --interval 0.2 --samples 2 --pretty
